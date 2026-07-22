@@ -1,0 +1,28 @@
+VIDEOS DE LOS REELS — Las Luigi Pizzas
+=======================================
+
+Poné acá los 4 videos de los reels con estos nombres EXACTOS:
+
+    reel1.mp4   ->  "Lomo Luigi"          (reel DaTgjNclTYc)
+    reel2.mp4   ->  "¿Vos querés?"        (reel DaEKq1PD6ZY)
+    reel3.mp4   ->  "Comunicado oficial"  (reel DY98jG-BPgN)
+    reel4.mp4   ->  "¿Pinta un lomo?"     (reel DY45g_QuZB6)
+
+(Opcional) Portada real de cada uno, como imagen vertical (9:16):
+
+    reel1.jpg   reel2.jpg   reel3.jpg   reel4.jpg
+
+Si no ponés los .jpg, se usa la portada branded (color + título + play).
+Mientras no estén los .mp4, al hacer click la tarjeta abre el reel en Instagram.
+
+Formato recomendado del video:
+  - .mp4 (H.264 / AAC)  ->  es el que reproduce cualquier navegador
+  - Vertical 9:16 (1080x1920)
+  - Pesado justo: idealmente menos de ~15 MB por video para que cargue rápido
+
+Cómo conseguir los .mp4:
+  - Exportalos desde tu cuenta de Instagram (son videos propios de la marca), o
+  - Subilos desde el original que tengas del video.
+
+Para cambiar qué reel muestra una tarjeta, editá en luigi-pizzas.html
+el atributo data-video (el .mp4) y el href (el link de Instagram) de esa tarjeta.

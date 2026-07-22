@@ -1,0 +1,8 @@
+# Videos originales descargados de Instagram (duplicados pesados de videos/reelN.mp4).
+# Los .mp4 optimizados que usa la web SI se versionan.
+videos/_originales/
+
+# Archivos del sistema
+Thumbs.db
+desktop.ini
+.DS_Store
