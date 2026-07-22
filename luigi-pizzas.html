@@ -156,7 +156,9 @@ section[id],header[id]{scroll-margin-top:84px}
    Al ir posicionados dentro de .hero-media (que calca la imagen), quedan
    siempre pegados al texto en cualquier tamaño de pantalla. */
 .hero-actions{
-  position:absolute;left:5%;top:66%;z-index:4;line-height:normal;
+  /* El texto de la imagen termina en el 64.8% de su alto: dejamos aire real
+     antes de los botones para que no queden pegados. */
+  position:absolute;left:5%;top:73%;z-index:4;line-height:normal;
   display:flex;flex-wrap:wrap;align-items:center;
   gap:clamp(9px,1.3vw,14px);
   max-width:47%;                            /* se queda en la zona del texto, no pisa la pizza */
@@ -170,13 +172,17 @@ section[id],header[id]{scroll-margin-top:84px}
 @media(max-width:600px){
   /* Botones dimensionados en vw: escalan junto con la imagen, así entran los dos
      debajo del texto en cualquier celular (angosto o ancho) sin recortarse. */
-  .hero-actions{top:64%;gap:1.6vw;max-width:47%}
+  /* Una sola fila: si se parten en dos, se salen por debajo de la imagen
+     (en celular la foto mide apenas ~56% del ancho de alto). */
+  .hero-actions{top:72%;gap:1.6vw;max-width:62%;flex-wrap:nowrap}
   .hero-actions .btn{
-    font-size:clamp(10px,3.1vw,13px);
-    padding:2vw 3.6vw 1.5vw;
-    border-width:2px;box-shadow:3px 3px 0 var(--char);
+    font-size:clamp(9px,2.9vw,13px);
+    padding:1.7vw 2.7vw 1.3vw;
+    border-width:2px;box-shadow:2px 2px 0 var(--char);
+    white-space:nowrap;
   }
-  .hero-actions .btn svg{width:3.6vw;height:3.6vw}
+  /* Sin iconos en celular: liberan el ancho justo para que entren los dos. */
+  .hero-actions .btn svg{display:none}
 }
 /* Solo en pantallas MÁS anchas que la imagen (ultra-wide) la foto se estiraría
    más alta que la pantalla: ahí sí la recortamos con cover para que llene el
@@ -365,26 +371,36 @@ section[id],header[id]{scroll-margin-top:84px}
 .cta-band .btn{font-size:17px;padding:16px 30px 13px}
 
 /* ---------- SUCURSALES ---------- */
-.sucursales{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:52px;text-align:left}
+/* El margen de arriba deja lugar para la parte del sticker que sobresale. */
+.sucursales{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;margin-top:clamp(112px,13vw,142px);text-align:left}
 .suc-card{
+  position:relative;overflow:visible;
   background:var(--cream);border:3px solid var(--char);border-radius:18px;
-  padding:28px 26px;box-shadow:6px 6px 0 var(--char);
+  padding:114px 26px 28px;box-shadow:6px 6px 0 var(--char);
   transition:transform .2s, box-shadow .2s;display:flex;flex-direction:column;
 }
 .suc-card:hover{transform:translate(-3px,-5px);box-shadow:10px 12px 0 var(--char)}
+/* Sticker del local: centrado arriba y sobresaliendo del borde de la tarjeta */
+.suc-sticker{
+  position:absolute;top:-92px;left:50%;transform:translateX(-50%);
+  width:min(68%,230px);height:auto;pointer-events:none;z-index:2;
+  filter:drop-shadow(0 10px 16px rgba(28,20,12,.34));
+  transition:transform .28s ease;
+}
+.suc-card:hover .suc-sticker{transform:translateX(-50%) translateY(-7px) rotate(-2deg)}
 .suc-name{
   font-family:"Luckiest Guy",cursive;font-size:27px;color:var(--red);line-height:1.1;
-  display:flex;align-items:center;gap:10px;letter-spacing:.01em;
+  display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:.01em;text-align:center;
 }
 .suc-name .pin{width:26px;height:26px;flex:none}
 .suc-tag{
   display:inline-block;font-family:"Space Mono";font-weight:700;font-size:10px;letter-spacing:.14em;
   text-transform:uppercase;background:var(--green);color:var(--char);border:2px solid var(--char);
-  padding:4px 10px;border-radius:20px;margin-bottom:14px;align-self:flex-start;
+  padding:4px 10px;border-radius:20px;margin-bottom:14px;align-self:center;
 }
 .suc-row{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:15px;line-height:1.45;color:var(--ink)}
 .suc-row svg{width:18px;height:18px;flex:none;margin-top:2px;stroke:var(--red);opacity:.9}
-.suc-actions{display:flex;gap:10px;margin-top:auto;padding-top:22px;flex-wrap:wrap}
+.suc-actions{display:flex;gap:10px;margin-top:auto;padding-top:22px;flex-wrap:wrap;justify-content:center}
 .suc-actions .btn{font-size:14px;padding:12px 18px 9px;box-shadow:3px 3px 0 var(--char)}
 .suc-actions .btn:hover{box-shadow:5px 5px 0 var(--char)}
 
@@ -666,6 +682,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
     <div class="sucursales">
 
       <article class="suc-card reveal">
+        <img class="suc-sticker" src="sucursal-sticker.png" alt="Local de Las Luigi Pizzas" />
         <span class="suc-tag">Local 1</span>
         <h3 class="suc-name">
           <svg class="pin" viewBox="0 0 24 24" fill="none" stroke="#7FB63C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -690,6 +707,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
       </article>
 
       <article class="suc-card reveal">
+        <img class="suc-sticker" src="sucursal-sticker.png" alt="Local de Las Luigi Pizzas" />
         <span class="suc-tag">Local 2</span>
         <h3 class="suc-name">
           <svg class="pin" viewBox="0 0 24 24" fill="none" stroke="#7FB63C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
