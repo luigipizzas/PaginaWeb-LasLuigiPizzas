@@ -22,7 +22,7 @@
   --shadow: rgba(28,20,12,.18);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:auto}  /* el scroll suave lo maneja Lenis */
 body{
   font-family:"Space Grotesk",system-ui,sans-serif;
   background:var(--cream);
@@ -33,6 +33,13 @@ body{
 img{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 ::selection{background:var(--red);color:var(--cream)}
+
+/* Lenis (scroll suave) */
+html.lenis, html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+.lenis.lenis-smooth iframe{pointer-events:none}
 
 /* paper grain */
 body::before{
@@ -134,15 +141,51 @@ section[id],header[id]{scroll-margin-top:84px}
 :focus-visible{outline:3px solid var(--green);outline-offset:3px;border-radius:2px}
 
 /* ---------- HERO ---------- */
+/* La imagen del hero trae TODO el diseño incrustado (texto + pizza), así que
+   nunca hay que recortarla: se muestra completa en cualquier dispositivo.
+   El fondo rojo (#C11D14) coincide con el de la imagen, por lo que cuando la
+   imagen se limita por alto (pantallas muy anchas) las franjas laterales
+   quedan invisibles: no se notan bandas ni costuras. */
 .hero{position:relative;overflow:hidden;background:#C11D14}
+/* El hero abraza exactamente la imagen (misma altura), así se ve completa de
+   borde a borde: sin recortes y SIN franjas rojas ni arriba (nav) ni abajo.
+   La imagen ocupa todo el ancho; el nav transparente queda encima de ella. */
+.hero-media{position:relative;width:100%;margin:0 auto;line-height:0}
 .hero-img{display:block;width:100%;height:auto}
-/* En pantallas anchas: la imagen cubre todo el ancho y se limita al alto del
-   viewport recortando apenas los márgenes rojos de arriba/abajo (sin bandas al costado). */
-@media(min-width:700px){
-  .hero{height:100svh;min-height:440px}
-  .hero-img{height:100%;object-fit:cover;object-position:center}
+/* Botones CTA superpuestos, alineados justo debajo del "¿Vos querés?".
+   Al ir posicionados dentro de .hero-media (que calca la imagen), quedan
+   siempre pegados al texto en cualquier tamaño de pantalla. */
+.hero-actions{
+  position:absolute;left:5%;top:66%;z-index:4;line-height:normal;
+  display:flex;flex-wrap:wrap;align-items:center;
+  gap:clamp(9px,1.3vw,14px);
+  max-width:47%;                            /* se queda en la zona del texto, no pisa la pizza */
 }
-@supports not (height:100svh){ @media(min-width:700px){ .hero{height:100vh} } }
+.hero-actions .btn{
+  font-size:clamp(12px,1.75vw,19px);
+  padding:clamp(9px,1.15vw,15px) clamp(15px,1.9vw,28px) clamp(7px,.9vw,12px);
+}
+/* En celulares la imagen es baja: compactamos y subimos los botones para que
+   los dos entren debajo del texto, sin pisar la pizza ni salirse de la imagen. */
+@media(max-width:600px){
+  /* Botones dimensionados en vw: escalan junto con la imagen, así entran los dos
+     debajo del texto en cualquier celular (angosto o ancho) sin recortarse. */
+  .hero-actions{top:64%;gap:1.6vw;max-width:47%}
+  .hero-actions .btn{
+    font-size:clamp(10px,3.1vw,13px);
+    padding:2vw 3.6vw 1.5vw;
+    border-width:2px;box-shadow:3px 3px 0 var(--char);
+  }
+  .hero-actions .btn svg{width:3.6vw;height:3.6vw}
+}
+/* Solo en pantallas MÁS anchas que la imagen (ultra-wide) la foto se estiraría
+   más alta que la pantalla: ahí sí la recortamos con cover para que llene el
+   viewport (se recorta apenas el margen rojo de arriba/abajo, no el contenido). */
+@media(min-aspect-ratio:3838/2142){
+  .hero-media{height:100svh}
+  .hero-img{position:absolute;inset:0;height:100%;object-fit:cover;object-position:center}
+}
+@supports not (height:100svh){ @media(min-aspect-ratio:3838/2142){ .hero-media{height:100vh} } }
 .hero-bg-word{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-family:"Luckiest Guy",cursive;color:var(--cream-2);font-size:42vw;line-height:1;z-index:0;
@@ -227,11 +270,23 @@ section[id],header[id]{scroll-margin-top:84px}
 }
 .card-add svg{width:20px;height:20px}
 .card-add:hover{background:var(--red);transform:rotate(90deg) scale(1.08)}
+/* Pizzas decorativas a los costados del menú (animan con el scroll) */
+.menu-sec{position:relative;overflow:hidden}
+.menu-sec > .wrap{position:relative;z-index:2}   /* contenido por encima de las pizzas */
+.side-pizza{
+  position:absolute;z-index:1;top:50px;pointer-events:none;user-select:none;
+  width:clamp(240px,33vw,520px);height:auto;
+  filter:drop-shadow(0 16px 30px rgba(28,20,12,.30));
+  will-change:transform;
+}
+.side-pizza-left{left:-8%}
+.side-pizza-right{right:-8%}
+@media(max-width:900px){ .side-pizza{display:none} }  /* en móvil no hay márgenes libres */
 
 /* ---------- ORIGEN ---------- */
 .origen{background:var(--cream);overflow:hidden}
 .origen-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:50px;align-items:center}
-.origen-photo{position:relative}
+.origen-photo{position:relative;will-change:transform;transform-style:preserve-3d}
 .origen-photo .frame{
   border:3px solid var(--char);border-radius:10px;overflow:hidden;box-shadow:10px 10px 0 var(--green);
   aspect-ratio:4/5;background:var(--char-2)
@@ -432,7 +487,17 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
 
 <!-- HERO -->
 <header class="hero">
-  <img class="hero-img" src="hero.jpg" alt="Las Luigi Pizzas — Eyyy! ¿Vos querés?" />
+  <div class="hero-media">
+    <img class="hero-img" src="IMG_3119.JPEG" alt="Las Luigi Pizzas — Eyyy! ¿Vos querés?" />
+    <div class="hero-actions">
+      <a class="btn green" href="#local">Pedí ahora
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="btn ghost" href="#menu">Ver el menú
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      </a>
+    </div>
+  </div>
 </header>
 <div class="checkers"></div>
 
@@ -446,6 +511,8 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
 
 <!-- MENU -->
 <section class="section menu-sec" id="menu">
+  <img class="side-pizza side-pizza-left" src="PIZZA.PNG" alt="" aria-hidden="true">
+  <img class="side-pizza side-pizza-right" src="PIZZA.PNG" alt="" aria-hidden="true">
   <div class="wrap">
     <div class="sec-head reveal">
       <div>
@@ -464,10 +531,10 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
 <section class="section origen" id="nosotros">
   <div class="wrap">
     <div class="origen-grid">
-      <div class="origen-photo reveal">
+      <div class="origen-photo">
         <div class="stamp">Hecho<br>en el<br>barrio</div>
         <div class="frame">
-          <img alt="El local de Las Luigi Pizzas" data-src="https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=900&auto=format&fit=crop">
+          <img alt="El local de Las Luigi Pizzas" data-src="local.PNG">
         </div>
       </div>
       <div class="origen-copy">
@@ -522,7 +589,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
         Para cambiar el video de una tarjeta, editá su data-video y su href.
       -->
 
-      <article class="reel-card reveal">
+      <article class="reel-card">
         <video class="reel-vid" playsinline preload="none" poster="videos/reel1.jpg"></video>
         <a class="reel-cover c1" href="https://www.instagram.com/reel/DaTgjNclTYc/" data-video="videos/reel1.mp4" target="_blank" rel="noopener">
           <div class="reel-top"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c2.7 0 3.1 0 4.1.05 1.1.05 1.7.24 2.1.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.16.4.35 1 .4 2.1.05 1 .05 1.4.05 4.1s0 3.1-.05 4.1c-.05 1.1-.24 1.7-.4 2.1-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.16-1 .35-2.1.4-1 .05-1.4.05-4.1.05s-3.1 0-4.1-.05c-1.1-.05-1.7-.24-2.1-.4a3.5 3.5 0 0 1-1.3-.85 3.5 3.5 0 0 1-.85-1.3c-.16-.4-.35-1-.4-2.1C2.05 15.1 2.05 14.7 2.05 12s0-3.1.05-4.1c.05-1.1.24-1.7.4-2.1.2-.5.45-.9.85-1.3.4-.4.8-.65 1.3-.85.4-.16 1-.35 2.1-.4C8.9 2 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Zm5.2-8.4a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z"/></svg> @lasluigipizzas</div>
@@ -534,7 +601,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
         </a>
       </article>
 
-      <article class="reel-card reveal">
+      <article class="reel-card">
         <video class="reel-vid" playsinline preload="none" poster="videos/reel2.jpg"></video>
         <a class="reel-cover c2" href="https://www.instagram.com/reel/DaEKq1PD6ZY/" data-video="videos/reel2.mp4" target="_blank" rel="noopener">
           <div class="reel-top"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c2.7 0 3.1 0 4.1.05 1.1.05 1.7.24 2.1.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.16.4.35 1 .4 2.1.05 1 .05 1.4.05 4.1s0 3.1-.05 4.1c-.05 1.1-.24 1.7-.4 2.1-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.16-1 .35-2.1.4-1 .05-1.4.05-4.1.05s-3.1 0-4.1-.05c-1.1-.05-1.7-.24-2.1-.4a3.5 3.5 0 0 1-1.3-.85 3.5 3.5 0 0 1-.85-1.3c-.16-.4-.35-1-.4-2.1C2.05 15.1 2.05 14.7 2.05 12s0-3.1.05-4.1c.05-1.1.24-1.7.4-2.1.2-.5.45-.9.85-1.3.4-.4.8-.65 1.3-.85.4-.16 1-.35 2.1-.4C8.9 2 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Zm5.2-8.4a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z"/></svg> @lasluigipizzas</div>
@@ -546,7 +613,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
         </a>
       </article>
 
-      <article class="reel-card reveal">
+      <article class="reel-card">
         <video class="reel-vid" playsinline preload="none" poster="videos/reel3.jpg"></video>
         <a class="reel-cover c3" href="https://www.instagram.com/reel/DY98jG-BPgN/" data-video="videos/reel3.mp4" target="_blank" rel="noopener">
           <div class="reel-top"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c2.7 0 3.1 0 4.1.05 1.1.05 1.7.24 2.1.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.16.4.35 1 .4 2.1.05 1 .05 1.4.05 4.1s0 3.1-.05 4.1c-.05 1.1-.24 1.7-.4 2.1-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.16-1 .35-2.1.4-1 .05-1.4.05-4.1.05s-3.1 0-4.1-.05c-1.1-.05-1.7-.24-2.1-.4a3.5 3.5 0 0 1-1.3-.85 3.5 3.5 0 0 1-.85-1.3c-.16-.4-.35-1-.4-2.1C2.05 15.1 2.05 14.7 2.05 12s0-3.1.05-4.1c.05-1.1.24-1.7.4-2.1.2-.5.45-.9.85-1.3.4-.4.8-.65 1.3-.85.4-.16 1-.35 2.1-.4C8.9 2 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Zm5.2-8.4a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z"/></svg> @lasluigipizzas</div>
@@ -558,7 +625,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
         </a>
       </article>
 
-      <article class="reel-card reveal">
+      <article class="reel-card">
         <video class="reel-vid" playsinline preload="none" poster="videos/reel4.jpg"></video>
         <a class="reel-cover c4" href="https://www.instagram.com/reel/DY45g_QuZB6/" data-video="videos/reel4.mp4" target="_blank" rel="noopener">
           <div class="reel-top"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c2.7 0 3.1 0 4.1.05 1.1.05 1.7.24 2.1.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.16.4.35 1 .4 2.1.05 1 .05 1.4.05 4.1s0 3.1-.05 4.1c-.05 1.1-.24 1.7-.4 2.1-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.16-1 .35-2.1.4-1 .05-1.4.05-4.1.05s-3.1 0-4.1-.05c-1.1-.05-1.7-.24-2.1-.4a3.5 3.5 0 0 1-1.3-.85 3.5 3.5 0 0 1-.85-1.3c-.16-.4-.35-1-.4-2.1C2.05 15.1 2.05 14.7 2.05 12s0-3.1.05-4.1c.05-1.1.24-1.7.4-2.1.2-.5.45-.9.85-1.3.4-.4.8-.65 1.3-.85.4-.16 1-.35 2.1-.4C8.9 2 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Zm5.2-8.4a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z"/></svg> @lasluigipizzas</div>
@@ -571,7 +638,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
       </article>
     </div>
 
-    <div class="reels-foot reveal">
+    <div class="reels-foot">
       <a class="btn ghost" href="https://www.instagram.com/lasluigipizzas" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none"/></svg>
         Seguinos en Instagram
@@ -683,6 +750,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
 <script>
 /* ===================== DATA: MENU ===================== */
 const productos = [
@@ -940,11 +1008,28 @@ window.addEventListener('load', ()=>{
   gsap.registerPlugin(ScrollTrigger);
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ===================== LENIS (scroll suave) ===================== */
+  if(!reduce && window.Lenis){
+    const lenis = new Lenis({ lerp:0.09, smoothWheel:true, wheelMultiplier:1 });
+    // Lo movemos con el ticker de GSAP para que quede sincronizado con ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+    // Los enlaces internos (#menu, #local, etc.) hacen scroll suave con Lenis
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const id = a.getAttribute('href');
+        if(id === '#'){ e.preventDefault(); lenis.scrollTo(0); return; }
+        const el = document.querySelector(id);
+        if(el){ e.preventDefault(); lenis.scrollTo(el, { offset:-80 }); }
+      });
+    });
+  }
+
   if(!reduce){
-    gsap.set('.hero-title .line span', {yPercent:120});
-    gsap.to('.hero-title .line span', {yPercent:0, duration:1, ease:'power4.out', stagger:.09, delay:.15});
-    gsap.from('.hero-copy .script, .hero-sub, .hero-cta-row', {y:24, opacity:0, duration:.8, ease:'power3.out', delay:.7, stagger:.12});
-    gsap.from('.stage-badge', {scale:0, rotate:-120, duration:.8, ease:'back.out(1.7)', delay:.9});
+    /* Hero: la imagen entra con un zoom sutil y los botones suben con fade */
+    gsap.from('.hero-img', {scale:1.06, duration:1.4, ease:'power3.out'});
+    gsap.from('.hero-actions .btn', {y:26, opacity:0, duration:.7, ease:'back.out(1.6)', delay:.6, stagger:.13});
 
     gsap.utils.toArray('.sticker').forEach((s,i)=>{
       gsap.to(s, {y:(i%2?-22:22), rotation:(i%2?8:-8), duration:2.4+i*.3, yoyo:true, repeat:-1, ease:'sine.inOut'});
@@ -967,33 +1052,86 @@ window.addEventListener('load', ()=>{
     });
     gsap.set('.card', {rotate:-2});
 
-    ScrollTrigger.batch('.reel-card', {
-      start:'top 92%',
-      onEnter: b=>gsap.to(b,{opacity:1,y:0,duration:.7,ease:'power3.out',stagger:.08})
-    });
-
     gsap.to('.origen-big', {xPercent:8, ease:'none',
       scrollTrigger:{trigger:'.origen', start:'top bottom', end:'bottom top', scrub:.6}});
     gsap.to('.origen-photo .frame', {yPercent:-8, ease:'none',
       scrollTrigger:{trigger:'.origen', start:'top bottom', end:'bottom top', scrub:.6}});
 
-    const steps = gsap.utils.toArray('.step');
-    ScrollTrigger.create({
-      trigger:'.proceso', start:'top top', end:'+=120%', pin:true, scrub:.5,
-      onUpdate:self=>{
-        const idx = Math.min(steps.length-1, Math.floor(self.progress*steps.length));
-        steps.forEach((s,i)=>{
-          gsap.to(s,{scale:i===idx?1.04:1, borderColor:i===idx?'#E23528':'#1C140C',
-            backgroundColor:i===idx?'#2A1E12':'#1C140C', duration:.3});
+    /* Foto del local: opacidad ligada al scroll (aparece al entrar, se desvanece al salir de vista) */
+    const oPhoto = document.querySelector('.origen-photo');
+    if(oPhoto){
+      gsap.timeline({scrollTrigger:{trigger:oPhoto, start:'top bottom', end:'bottom top', scrub:true}})
+        .fromTo(oPhoto, {opacity:0}, {opacity:1, ease:'none', duration:.3})  // entra por abajo → aparece
+        .to(oPhoto, {opacity:1, duration:.4})                                // se queda visible en el centro
+        .to(oPhoto, {opacity:0, ease:'none', duration:.3});                  // sale por arriba → se desvanece
+
+      /* Tarjeta 3D: se inclina siguiendo el mouse (solo con puntero fino, no en touch) */
+      if(window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+        gsap.set(oPhoto, {transformPerspective:900, transformOrigin:'center'});
+        const rotX = gsap.quickTo(oPhoto, 'rotationX', {duration:.4, ease:'power2.out'});
+        const rotY = gsap.quickTo(oPhoto, 'rotationY', {duration:.4, ease:'power2.out'});
+        const scl  = gsap.quickTo(oPhoto, 'scale',     {duration:.4, ease:'power2.out'});
+        const MAX = 11; // grados de inclinación
+        oPhoto.addEventListener('pointermove', e=>{
+          const r = oPhoto.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width  - .5;   // -0.5 .. 0.5
+          const py = (e.clientY - r.top)  / r.height - .5;
+          rotY(px * MAX * 2);
+          rotX(-py * MAX * 2);
+          scl(1.035);
         });
+        oPhoto.addEventListener('pointerleave', ()=>{ rotX(0); rotY(0); scl(1); });
       }
-    });
+    }
+
+    const steps = gsap.utils.toArray('.step');
+    if(steps.length){
+      // Selección de pasos SIN pin: resalta cada paso mientras la sección pasa por pantalla.
+      // Al no pinnear, la sección de reels queda pegada debajo (ya no "sube" con el scroll).
+      ScrollTrigger.create({
+        trigger:'.proceso', start:'top 70%', end:'bottom 65%', scrub:.5,
+        onUpdate:self=>{
+          const idx = Math.min(steps.length-1, Math.floor(self.progress*steps.length));
+          steps.forEach((s,i)=>{
+            gsap.to(s,{scale:i===idx?1.04:1, borderColor:i===idx?'#E23528':'#1C140C',
+              backgroundColor:i===idx?'#2A1E12':'#1C140C', duration:.3});
+          });
+        }
+      });
+    }
 
     gsap.to('.hero-bg-word', {yPercent:20, ease:'none',
       scrollTrigger:{trigger:'.hero', start:'top top', end:'bottom top', scrub:.5}});
+
+    /* Pizzas laterales: salen desde abajo del marquee y se abren a cada lado con el scroll */
+    (() => {
+      const sec = document.querySelector('.menu-sec');
+      const pL  = document.querySelector('.side-pizza-left');
+      const pR  = document.querySelector('.side-pizza-right');
+      if(!sec || !pL || !pR) return;
+      // Estado inicial: escondidas arriba (clippeadas bajo el marquee), juntas hacia el centro
+      gsap.set(pL, {yPercent:-120, xPercent:135, rotate:-65, opacity:0});
+      gsap.set(pR, {yPercent:-120, xPercent:-135, rotate:65, opacity:0});
+      // Aparición + apertura hacia cada lado, atada al scroll de entrada al menú
+      gsap.timeline({scrollTrigger:{trigger:sec, start:'top 92%', end:'top 30%', scrub:.6}})
+        .to(pL, {yPercent:0, xPercent:0, rotate:-14, opacity:1, ease:'none'}, 0)
+        .to(pR, {yPercent:0, xPercent:0, rotate:14,  opacity:1, ease:'none'}, 0);
+      // Descenso + rotación: bajan hasta el final del menú mientras giran, atado al scroll.
+      // immediateRender:false para no pisar el estado del reveal al cargar.
+      const travelL = Math.max(160, sec.offsetHeight - pL.offsetHeight - 100);
+      const travelR = Math.max(160, sec.offsetHeight - pR.offsetHeight - 100);
+      gsap.fromTo(pL, {y:0, rotate:-14},
+        {y:travelL, rotate:54, ease:'none', immediateRender:false,
+         scrollTrigger:{trigger:sec, start:'top 30%', end:'bottom bottom', scrub:1}});
+      gsap.fromTo(pR, {y:0, rotate:14},
+        {y:travelR, rotate:-54, ease:'none', immediateRender:false,
+         scrollTrigger:{trigger:sec, start:'top 30%', end:'bottom bottom', scrub:1}});
+    })();
   } else {
     gsap.set('.reveal',{opacity:1,y:0});
     gsap.set('.hero-title .line span',{yPercent:0});
+    gsap.set('.side-pizza-left',{opacity:1,rotate:-12});
+    gsap.set('.side-pizza-right',{opacity:1,rotate:12});
   }
 });
 </script>
