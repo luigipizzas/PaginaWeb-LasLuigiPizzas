@@ -373,6 +373,11 @@ section[id],header[id]{scroll-margin-top:84px}
 /* ---------- SUCURSALES ---------- */
 /* El margen de arriba deja lugar para la parte del sticker que sobresale. */
 .sucursales{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;margin-top:clamp(112px,13vw,142px);text-align:left}
+/* Contenedor de cada tarjeta: es lo que anima el ScrollTrigger (las tarjetas
+   arrancan superpuestas al centro y se abren a su lugar). Va aparte para no
+   pelearse con el transition:transform del hover de la tarjeta. */
+.suc-slot{display:flex;will-change:transform}
+.suc-slot > .suc-card{width:100%}
 .suc-card{
   position:relative;overflow:visible;
   background:var(--cream);border:3px solid var(--char);border-radius:18px;
@@ -398,11 +403,24 @@ section[id],header[id]{scroll-margin-top:84px}
   text-transform:uppercase;background:var(--green);color:var(--char);border:2px solid var(--char);
   padding:4px 10px;border-radius:20px;margin-bottom:14px;align-self:center;
 }
+/* Cuerpo de la tarjeta: datos a la izquierda, mapa a la derecha */
+.suc-body{
+  display:grid;grid-template-columns:1fr 1.05fr;gap:18px;
+  margin-top:22px;align-items:stretch;
+}
+.suc-info{display:flex;flex-direction:column}
 .suc-row{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:15px;line-height:1.45;color:var(--ink)}
+.suc-row:first-child{margin-top:0}
 .suc-row svg{width:18px;height:18px;flex:none;margin-top:2px;stroke:var(--red);opacity:.9}
-.suc-actions{display:flex;gap:10px;margin-top:auto;padding-top:22px;flex-wrap:wrap;justify-content:center}
+.suc-actions{display:flex;gap:10px;margin-top:auto;padding-top:22px;flex-wrap:wrap;justify-content:flex-start}
 .suc-actions .btn{font-size:14px;padding:12px 18px 9px;box-shadow:3px 3px 0 var(--char)}
 .suc-actions .btn:hover{box-shadow:5px 5px 0 var(--char)}
+/* Mapa embebido de Google Maps */
+.suc-map{
+  position:relative;border:3px solid var(--char);border-radius:14px;overflow:hidden;
+  background:var(--cream-2);min-height:215px;box-shadow:4px 4px 0 var(--char);
+}
+.suc-map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
 
 /* ---------- FOOTER ---------- */
 footer{background:var(--char);color:var(--paper);padding:66px 0 38px}
@@ -439,7 +457,12 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
   .origen-photo{max-width:420px;margin:0 auto}
   .menu-grid{grid-template-columns:1fr 1fr}
   .foot-grid{grid-template-columns:1fr 1fr}
-  .sucursales{gap:18px;margin-top:44px}
+}
+/* El mapa al lado del texto necesita ancho de tarjeta: como van 2 por fila,
+   por debajo de esto la tarjeta se angosta y el mapa pasa debajo del texto. */
+@media(max-width:1100px){
+  .suc-body{grid-template-columns:1fr;gap:16px}
+  .suc-map{min-height:200px}
 }
 @media(max-width:620px){
   nav .wrap{height:60px}
@@ -447,7 +470,8 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
   .menu-grid{grid-template-columns:1fr}
   .reels-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
   .steps{grid-template-columns:1fr}
-  .sucursales{grid-template-columns:1fr}
+  /* Al apilarse, el gap tiene que dejar lugar al sticker que sobresale. */
+  .sucursales{grid-template-columns:1fr;gap:clamp(112px,14vw,130px)}
   .foot-grid{grid-template-columns:1fr}
   .sec-head{align-items:flex-start}
   .stage-badge{width:92px;height:92px;font-size:9px}
@@ -457,6 +481,77 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.001ms !important;transition-duration:.001ms !important}
   .reveal{opacity:1;transform:none}
+}
+
+/* ---------- BOTÓN FLOTANTE DE WHATSAPP ----------
+   Arranca como círculo fijo abajo a la derecha y, al llegar a "¿Te dio hambre?",
+   se transforma en el botón "Hacé tu pedido por WhatsApp" (GSAP + ScrollTrigger).
+   Se posiciona por JS (left/top); queda oculto si el JS no corre. */
+.wa-fab{
+  position:fixed;left:0;top:0;z-index:90;visibility:hidden;
+  display:flex;align-items:center;justify-content:center;gap:0;
+  width:62px;height:62px;padding:0;overflow:hidden;white-space:nowrap;
+  background:var(--red);color:var(--cream);border:3px solid var(--char);
+  border-radius:999px;box-shadow:4px 4px 0 var(--char);
+  font-family:"Luckiest Guy",cursive;font-size:16px;letter-spacing:.03em;
+  text-decoration:none;cursor:pointer;
+}
+.wa-fab-ico{flex:none;display:grid;place-items:center;width:30px;height:30px}
+.wa-fab-ico svg{width:100%;height:100%;display:block}
+/* Arranca con ancho 0: si ocupara su ancho real, empujaría al ícono fuera
+   del círculo (que recorta con overflow:hidden) y no se vería nada. */
+.wa-fab-text{opacity:0;flex:none;width:0;overflow:hidden;white-space:nowrap}
+/* Mientras el círculo ocupa su lugar, el botón real se oculta pero mantiene el hueco */
+.is-replaced{visibility:hidden}
+@media(max-width:600px){
+  .wa-fab{font-size:13px}
+  .wa-fab-ico{width:26px;height:26px}
+}
+
+/* ================= IMPRESIÓN / EXPORTAR A PDF ================= */
+@media print{
+  /* Hoja ancha para que se imprima el diseño de escritorio y no el de celular. */
+  @page{ size:340mm 440mm; margin:0 }
+
+  /* Que se impriman los fondos de color y las fotos (por defecto Chrome los quita). */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important }
+
+  /* Sin esto, todo lo que entra con animación al hacer scroll queda INVISIBLE en el PDF. */
+  .reveal{ opacity:1 !important; transform:none !important }
+  *{ animation:none !important; transition:none !important }
+
+  /* El nav es fijo: en papel se repetiría/taparía contenido. Lo dejamos en el flujo
+     y con fondo, arriba de todo, una sola vez. */
+  nav{ position:static !important; background:var(--paper) !important; border-bottom-color:var(--char) !important }
+  nav .logo{ color:var(--red) !important }
+  nav .navlinks a{ color:var(--char) !important }
+  .mobile-menu, .menu-toggle{ display:none !important }
+
+  /* El hero deja de atarse al alto de pantalla: se imprime la imagen completa. */
+  .hero, .hero-media{ height:auto !important; min-height:0 !important }
+  .hero-img{ position:static !important; width:100% !important; height:auto !important; object-fit:contain !important }
+
+  /* Que no se parta una tarjeta a la mitad entre dos hojas. */
+  .card, .reel-card, .step, .suc-card, .origen-photo{ break-inside:avoid; page-break-inside:avoid }
+  section, header, footer{ break-inside:auto }
+
+  /* El sticker sobresale por fuera de la tarjeta: si el corte de hoja cae ahí,
+     se recorta. En papel lo metemos dentro del flujo para que salga entero. */
+  .suc-sticker{ position:static !important; transform:none !important; display:block;
+                margin:0 auto 6px; width:190px !important; filter:none !important }
+  .suc-card{ padding-top:22px !important }
+  .sucursales{ margin-top:34px !important; gap:22px !important }
+  .suc-map{ min-height:200px }
+
+  /* Menos aire en papel: entra más contenido por hoja y quedan menos huecos. */
+  .section{ padding:38px 0 !important }
+  .sec-head{ margin-bottom:24px !important }
+
+  body::before{ display:none !important }   /* textura de papel: ensucia la impresión */
+
+  /* El flotante no va en papel; y el botón real vuelve a verse. */
+  .wa-fab{ display:none !important }
+  .is-replaced{ visibility:visible !important }
 }
 </style>
 </head>
@@ -669,7 +764,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
     <span class="script">¿Te dio hambre?</span>
     <h2 class="reveal">PEDÍ AHORA</h2>
     <p class="reveal">Abierto de Martes a Domingo · Envíos a domicilio · Retiro en el local</p>
-    <a class="btn reveal" href="#">Hacé tu pedido por WhatsApp
+    <a class="btn reveal" id="waTarget" href="#">Hacé tu pedido por WhatsApp
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </a>
 
@@ -681,6 +776,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
     -->
     <div class="sucursales">
 
+      <div class="suc-slot">
       <article class="suc-card reveal">
         <img class="suc-sticker" src="sucursal-sticker.png" alt="Local de Las Luigi Pizzas" />
         <span class="suc-tag">Local 1</span>
@@ -688,6 +784,8 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
           <svg class="pin" viewBox="0 0 24 24" fill="none" stroke="#7FB63C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           Sucursal Centro
         </h3>
+        <div class="suc-body">
+        <div class="suc-info">
         <div class="suc-row">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           <span>Completá la dirección</span>
@@ -704,8 +802,17 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
           <a class="btn" href="#">Llamar</a>
           <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Las+Luigi+Pizzas" target="_blank" rel="noopener">Cómo llegar</a>
         </div>
+        </div>
+        <div class="suc-map">
+          <!-- UBICACIÓN PROVISORIA: cambiá el valor de q= por la dirección real de esta sucursal -->
+          <iframe title="Mapa de la Sucursal Centro" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=Plaza+Independencia,+Mendoza,+Argentina&amp;z=16&amp;output=embed"></iframe>
+        </div>
+      </div>
       </article>
+      </div>
 
+      <div class="suc-slot">
       <article class="suc-card reveal">
         <img class="suc-sticker" src="sucursal-sticker.png" alt="Local de Las Luigi Pizzas" />
         <span class="suc-tag">Local 2</span>
@@ -713,6 +820,8 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
           <svg class="pin" viewBox="0 0 24 24" fill="none" stroke="#7FB63C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           Sucursal Norte
         </h3>
+        <div class="suc-body">
+        <div class="suc-info">
         <div class="suc-row">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           <span>Completá la dirección</span>
@@ -729,7 +838,15 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
           <a class="btn" href="#">Llamar</a>
           <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Las+Luigi+Pizzas" target="_blank" rel="noopener">Cómo llegar</a>
         </div>
+        </div>
+        <div class="suc-map">
+          <!-- UBICACIÓN PROVISORIA: cambiá el valor de q= por la dirección real de esta sucursal -->
+          <iframe title="Mapa de la Sucursal Norte" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=Parque+General+San+Martin,+Mendoza,+Argentina&amp;z=15&amp;output=embed"></iframe>
+        </div>
+      </div>
       </article>
+      </div>
 
     </div>
   </div>
@@ -765,6 +882,17 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
     </div>
   </div>
 </footer>
+
+<!-- BOTÓN FLOTANTE WHATSAPP (se transforma en el CTA al llegar a "¿Te dio hambre?") -->
+<a class="wa-fab" id="waFab" href="#" aria-label="Hacé tu pedido por WhatsApp">
+  <span class="wa-fab-ico" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2a10 10 0 0 0-8.6 15.06L2 22l5.06-1.35A10 10 0 1 0 12 2Zm0 18.2a8.17 8.17 0 0 1-4.16-1.14l-.3-.18-3.08.82.82-3-.19-.31A8.2 8.2 0 1 1 12 20.2Z"/>
+      <path d="M16.9 14.2c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.13-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.18-1.34-.8-.72-1.35-1.6-1.51-1.87-.16-.27-.02-.42.12-.55.12-.12.27-.32.4-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.01-.22-.53-.44-.46-.61-.46h-.52c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.26s.98 2.62 1.11 2.8c.14.18 1.9 2.9 4.6 4.07.64.28 1.15.44 1.54.57.65.2 1.24.18 1.7.11.52-.08 1.6-.65 1.83-1.29.23-.63.23-1.17.16-1.29-.07-.11-.25-.18-.52-.32Z"/>
+    </svg>
+  </span>
+  <span class="wa-fab-text">Hacé tu pedido por WhatsApp</span>
+</a>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -1151,6 +1279,112 @@ window.addEventListener('load', ()=>{
     gsap.set('.side-pizza-left',{opacity:1,rotate:-12});
     gsap.set('.side-pizza-right',{opacity:1,rotate:12});
   }
+});
+</script>
+
+<script>
+/* ============ BOTÓN FLOTANTE WHATSAPP: círculo -> botón del CTA ============
+   El círculo vive fijo abajo a la derecha. Al entrar la sección "¿Te dio hambre?"
+   se estira y viaja hasta calzar exactamente sobre el botón real, que se oculta
+   (pero deja su hueco). Se actualiza en cada frame, así queda pegado al botón
+   mientras seguís scrolleando. */
+window.addEventListener('load', ()=>{
+  const fab    = document.getElementById('waFab');
+  const target = document.getElementById('waTarget');
+  if(!fab || !target || !window.gsap) return;
+  const text = fab.querySelector('.wa-fab-text');
+  const ico  = fab.querySelector('.wa-fab-ico');
+
+  // El flotante usa el mismo link que el botón real
+  const href = target.getAttribute('href');
+  if(href) fab.setAttribute('href', href);
+
+  const M = 24, R = 62;                                  // margen y diámetro del círculo
+  const rest = ()=>({w:R, h:R, l:innerWidth-R-M, t:innerHeight-R-M});
+
+  // Ancho natural del texto: lo necesitamos para poder animarlo de 0 a completo.
+  const TEXTW = (()=>{ text.style.width='auto'; const w = text.scrollWidth; text.style.width='0px'; return w; })();
+  const GAP = 10;
+
+  function place(p){
+    const r = target.getBoundingClientRect(), a = rest();
+    gsap.set(fab, {
+      width : a.w + (r.width  - a.w)*p,
+      height: a.h + (r.height - a.h)*p,
+      left  : a.l + (r.left   - a.l)*p,
+      top   : a.t + (r.top    - a.t)*p,
+      gap   : GAP * p
+    });
+    gsap.set(ico,  {scale: 1 - .18*p});
+    // El texto crece en ancho junto con la píldora y recién se ve sobre el final
+    gsap.set(text, {width: TEXTW * p, opacity: p < .55 ? 0 : (p-.55)/.45});
+    target.classList.toggle('is-replaced', p > .02);
+  }
+
+  // Con "reducir movimiento" activado: círculo siempre, y el botón real intacto.
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    place(0);
+    gsap.set(fab,{autoAlpha:1});
+    target.classList.remove('is-replaced');
+    window.addEventListener('resize', ()=>place(0));
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.set(fab,{autoAlpha:0, scale:.5});
+  place(0);
+
+  // Aparece recién pasado el hero (si no, tapa la imagen principal)
+  ScrollTrigger.create({
+    trigger:'.hero', start:'bottom 85%',
+    onEnter    : ()=>gsap.to(fab,{autoAlpha:1, scale:1,  duration:.4, ease:'back.out(1.7)'}),
+    onLeaveBack: ()=>gsap.to(fab,{autoAlpha:0, scale:.5, duration:.25, ease:'power2.in'})
+  });
+
+  // Progreso del morph: de círculo (0) a botón (1)
+  // Arranca cuando la sección ya está bien entrada en pantalla (no apenas asoma)
+  const morph = ScrollTrigger.create({trigger:'.cta-band', start:'top 58%', end:'top 22%'});
+
+  gsap.ticker.add(()=>place(morph.progress));
+  window.addEventListener('resize', ()=>place(morph.progress));
+
+  /* ===== SUCURSALES: arrancan superpuestas al centro y se acomodan ===== */
+  (function(){
+    const slots = gsap.utils.toArray('.suc-slot');
+    if(slots.length !== 2) return;
+
+    // offsetLeft NO se ve afectado por los transforms de GSAP, así que sirve
+    // para medir la distancia real entre las dos columnas en cualquier momento.
+    const gap  = ()=> slots[1].offsetLeft - slots[0].offsetLeft;
+    const apiladas = ()=> gap() < 20;                 // en celular van una debajo de otra
+
+    if(apiladas()) return;                            // sin efecto lateral en móvil
+
+    gsap.timeline({
+      scrollTrigger:{
+        trigger:'.sucursales',
+        start:'top 92%', end:'top 45%',
+        scrub:.6, invalidateOnRefresh:true
+      }
+    })
+    /* fromTo (y no from): con invalidateOnRefresh, un .from() vuelve a leer la
+       posición actual —ya desplazada— como destino y las tarjetas quedan
+       trabadas superpuestas. Con fromTo el inicio y el final son explícitos. */
+    .fromTo(slots[0], {x:()=> gap()/2, rotate:-5, scale:.9},
+                      {x:0, rotate:0, scale:1, ease:'power2.out'}, 0)
+    .fromTo(slots[1], {x:()=>-gap()/2, rotate: 5, scale:.9},
+                      {x:0, rotate:0, scale:1, ease:'power2.out'}, 0);
+  })();
+
+  /* Las fotos, los videos y los mapas terminan de cargar DESPUÉS del load y
+     alargan la página: sin recalcular, todos los ScrollTrigger quedan corridos
+     y disparan en el lugar equivocado. */
+  const refresh = ()=>ScrollTrigger.refresh();
+  document.querySelectorAll('img').forEach(img=>{
+    if(!img.complete) img.addEventListener('load', refresh, {once:true});
+  });
+  setTimeout(refresh, 600);
+  setTimeout(refresh, 2000);
 });
 </script>
 </body>
