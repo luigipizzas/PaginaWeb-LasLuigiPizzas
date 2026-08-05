@@ -276,9 +276,17 @@ section[id],header[id]{scroll-margin-top:84px}
 }
 .card-add svg{width:20px;height:20px}
 .card-add:hover{background:var(--red);transform:rotate(90deg) scale(1.08)}
-/* Pizzas decorativas a los costados del menú (animan con el scroll) */
+/* Pizzas decorativas a los costados (animan con el scroll).
+   .pizza-track envuelve menú + nosotros + proceso: recorta arriba (para que las
+   pizzas salgan desde abajo del marquee) pero las deja viajar hacia abajo por
+   las tres secciones. No lleva z-index, así las pizzas (z-index:1) pintan por
+   encima del FONDO de cada sección, y los .wrap (z-index:2) por encima de ellas. */
+.pizza-track{position:relative;overflow:hidden}
 .menu-sec{position:relative;overflow:hidden}
-.menu-sec > .wrap{position:relative;z-index:2}   /* contenido por encima de las pizzas */
+/* contenido por encima de las pizzas en las 3 secciones que atraviesan */
+.menu-sec > .wrap,
+.origen  > .wrap,
+.proceso > .wrap{position:relative;z-index:2}
 .side-pizza{
   position:absolute;z-index:1;top:50px;pointer-events:none;user-select:none;
   width:clamp(240px,33vw,520px);height:auto;
@@ -311,7 +319,8 @@ section[id],header[id]{scroll-margin-top:84px}
 /* ---------- PROCESO ---------- */
 /* Verde de marca de fondo, tarjetas negras y números rojos */
 .proceso{background:var(--green);color:var(--cream);position:relative;overflow:hidden}
-.proceso .sec-title{color:var(--char)}
+/* "De la masa a la mesa": todo el título en el color claro */
+.proceso .sec-title,
 .proceso .sec-title em{color:var(--cream)}
 .proceso .script{color:var(--cream);text-shadow:2px 2px 0 var(--green-deep)}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:20px}
@@ -620,10 +629,14 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
   </div>
 </div>
 
-<!-- MENU -->
-<section class="section menu-sec" id="menu">
+<!-- Contenedor común de menú + nosotros + proceso: permite que la pizza derecha
+     viaje desde el menú hasta el límite con la sección verde sin ser recortada. -->
+<div class="pizza-track">
   <img class="side-pizza side-pizza-left" src="PIZZA.PNG" alt="" aria-hidden="true">
   <img class="side-pizza side-pizza-right" src="PIZZA.PNG" alt="" aria-hidden="true">
+
+<!-- MENU -->
+<section class="section menu-sec" id="menu">
   <div class="wrap">
     <div class="sec-head reveal">
       <div>
@@ -676,6 +689,8 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
     </div>
   </div>
 </section>
+
+</div><!-- /.pizza-track -->
 
 <!-- REELS -->
 <section class="section reels-sec" id="reels">
@@ -1262,16 +1277,33 @@ window.addEventListener('load', ()=>{
       gsap.timeline({scrollTrigger:{trigger:sec, start:'top 92%', end:'top 30%', scrub:.6}})
         .to(pL, {yPercent:0, xPercent:0, rotate:-14, opacity:1, ease:'none'}, 0)
         .to(pR, {yPercent:0, xPercent:0, rotate:14,  opacity:1, ease:'none'}, 0);
-      // Descenso + rotación: bajan hasta el final del menú mientras giran, atado al scroll.
+      // Descenso + rotación mientras giran, atado al scroll.
       // immediateRender:false para no pisar el estado del reveal al cargar.
-      const travelL = Math.max(160, sec.offsetHeight - pL.offsetHeight - 100);
-      const travelR = Math.max(160, sec.offsetHeight - pR.offsetHeight - 100);
+
+      // Los recorridos van como función + invalidateOnRefresh: así se recalculan al
+      // redimensionar (las alturas cambian, y bajo 900px las pizzas son display:none).
+      const TOP_CSS = 50;   // .side-pizza { top:50px }
+
+      // IZQUIERDA: baja hasta el final del menú (como estaba).
       gsap.fromTo(pL, {y:0, rotate:-14},
-        {y:travelL, rotate:54, ease:'none', immediateRender:false,
-         scrollTrigger:{trigger:sec, start:'top 30%', end:'bottom bottom', scrub:1}});
-      gsap.fromTo(pR, {y:0, rotate:14},
-        {y:travelR, rotate:-54, ease:'none', immediateRender:false,
-         scrollTrigger:{trigger:sec, start:'top 30%', end:'bottom bottom', scrub:1}});
+        {y:() => Math.max(160, sec.offsetHeight - pL.offsetHeight - 100),
+         rotate:54, ease:'none', immediateRender:false,
+         scrollTrigger:{trigger:sec, start:'top 30%', end:'bottom bottom',
+                        scrub:1, invalidateOnRefresh:true}});
+
+      // DERECHA: sigue bajando por "La parte que más nos gusta" y termina centrada
+      // justo sobre el límite entre esa sección y la verde (mitad en cada una).
+      const origen = document.querySelector('.origen');
+      if(origen){
+        gsap.fromTo(pR, {y:0, rotate:14},
+          {y:() => {
+             const limite = origen.offsetTop + origen.offsetHeight;  // relativo a .pizza-track
+             return Math.max(160, limite - pR.offsetHeight / 2 - TOP_CSS);
+           },
+           rotate:-70, ease:'none', immediateRender:false,
+           scrollTrigger:{trigger:sec, start:'top 30%', endTrigger:origen, end:'bottom 60%',
+                          scrub:1, invalidateOnRefresh:true}});
+      }
     })();
   } else {
     gsap.set('.reveal',{opacity:1,y:0});
