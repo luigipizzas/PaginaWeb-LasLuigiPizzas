@@ -70,6 +70,13 @@ export default async function AdminPage() {
               Abre la página real en una pestaña nueva.
             </span>
           </a>
+
+          <a className={styles.tarjetaAccion} href="/admin/cuenta">
+            <span className={styles.tarjetaTitulo}>Mi cuenta</span>
+            <span className={styles.tarjetaTexto}>
+              Cambiá el correo y la contraseña con los que entrás.
+            </span>
+          </a>
         </div>
 
         <div className={styles.metricas}>

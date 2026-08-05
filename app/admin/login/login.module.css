@@ -51,14 +51,53 @@
   margin-bottom: 26px;
 }
 
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.etiqueta {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #241708;
+  opacity: 0.72;
+}
+
+.input {
+  width: 100%;
+  background: #fff;
+  border: 2px solid #1c140c;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15.5px;
+  font-family: inherit;
+  color: #1c140c;
+}
+
+.input:focus {
+  outline: 3px solid #7fb63c;
+  outline-offset: 1px;
+}
+
 .boton {
   width: 100%;
+  margin-top: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 11px;
-  background: #fff;
-  color: #1c140c;
+  background: #c11d14;
+  color: #f7efdd;
   border: 3px solid #1c140c;
   border-radius: 40px;
   padding: 14px 22px;

@@ -1,21 +1,9 @@
 import styles from "./login.module.css";
-import BotonGoogle from "./BotonGoogle";
+import FormLogin from "./FormLogin";
 
-const MENSAJES: Record<string, string> = {
-  no_autorizado:
-    "Esa cuenta no tiene permiso. Entrá con el correo autorizado de Las Luigi Pizzas.",
-  auth: "No pudimos validar tu sesión. Probá de nuevo.",
-  sin_codigo: "El enlace de acceso venció. Probá de nuevo.",
-};
+export const metadata = { title: "Ingresar · Panel Las Luigi Pizzas" };
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const { error } = await searchParams;
-  const mensaje = error ? MENSAJES[error] ?? MENSAJES.auth : null;
-
+export default function LoginPage() {
   return (
     <main className={styles.pantalla}>
       <div className={styles.tarjeta}>
@@ -48,15 +36,14 @@ export default async function LoginPage({
 
         <h1 className={styles.titulo}>Panel de administración</h1>
         <p className={styles.bajada}>
-          Entrá con la cuenta de Google autorizada para editar la página.
+          Ingresá con tu correo y contraseña para editar tu página.
         </p>
 
-        {mensaje && <div className={styles.error}>{mensaje}</div>}
-
-        <BotonGoogle />
+        <FormLogin />
 
         <p className={styles.nota}>
-          Acceso exclusivo del dueño. Cualquier otra cuenta será rechazada.
+          Acceso exclusivo del dueño. Podés cambiar tu correo y tu contraseña
+          desde el panel.
         </p>
       </div>
     </main>

@@ -37,19 +37,17 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const esRutaAdmin = pathname.startsWith("/admin");
   const esLogin = pathname === "/admin/login";
-  const permitido = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase().trim();
-  const esAdmin =
-    !!user?.email && user.email.toLowerCase().trim() === permitido;
 
-  // Sin permiso y entrando al panel -> al login
-  if (esRutaAdmin && !esLogin && !esAdmin) {
+  // Acá solo miramos si hay sesión (barato). Si el usuario está logueado pero
+  // no es admin, la propia página lo rebota: la verificación real corre en el
+  // servidor contra public.admins y en las policies RLS.
+  if (esRutaAdmin && !esLogin && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/login";
     return NextResponse.redirect(url);
   }
 
-  // Ya logueado y yendo al login -> derecho al panel
-  if (esLogin && esAdmin) {
+  if (esLogin && user) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin";
     return NextResponse.redirect(url);

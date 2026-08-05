@@ -29,8 +29,10 @@ export async function createClient() {
 
 /**
  * Devuelve el usuario SOLO si está en la lista blanca de administradores.
- * La verificación real de permisos vive en las policies RLS de Postgres;
- * esto es la capa de UI/servidor.
+ *
+ * La fuente de verdad es la tabla public.admins (consultada vía is_admin()),
+ * NO una variable de entorno: así el cliente puede cambiar su correo desde el
+ * panel sin quedarse afuera. Las policies RLS son el candado definitivo.
  */
 export async function getAdminUser() {
   const supabase = await createClient();
@@ -38,10 +40,10 @@ export async function getAdminUser() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user?.email) return null;
+  if (!user) return null;
 
-  const permitido = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase().trim();
-  if (!permitido || user.email.toLowerCase().trim() !== permitido) return null;
+  const { data: esAdmin, error } = await supabase.rpc("is_admin");
+  if (error || !esAdmin) return null;
 
   return user;
 }
