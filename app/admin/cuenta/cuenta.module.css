@@ -1,0 +1,154 @@
+.pantalla {
+  min-height: 100vh;
+  background: #f4ebd1;
+  padding: 34px 24px 70px;
+}
+
+.contenedor {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.volver {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #c11d14;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+
+.volver:hover {
+  text-decoration: underline;
+}
+
+.titulo {
+  font-family: var(--font-luckiest), system-ui, cursive;
+  text-transform: uppercase;
+  font-size: clamp(28px, 5vw, 40px);
+  color: #1c140c;
+  line-height: 1;
+}
+
+.bajada {
+  margin-top: 10px;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: #241708;
+  opacity: 0.85;
+}
+
+.form {
+  margin-top: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.grupo {
+  background: #f7efdd;
+  border: 3px solid #1c140c;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.grupoConfirmar {
+  border-style: dashed;
+  background: #fdf6e6;
+}
+
+.leyenda {
+  font-family: var(--font-luckiest), system-ui, cursive;
+  text-transform: uppercase;
+  font-size: 16px;
+  color: #c11d14;
+  padding: 0 8px;
+}
+
+.ayuda {
+  font-size: 13px;
+  color: #241708;
+  opacity: 0.7;
+  margin-top: -4px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.etiqueta {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #241708;
+  opacity: 0.72;
+}
+
+.input {
+  width: 100%;
+  background: #fff;
+  border: 2px solid #1c140c;
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 15.5px;
+  font-family: inherit;
+  color: #1c140c;
+}
+
+.input:focus {
+  outline: 3px solid #7fb63c;
+  outline-offset: 1px;
+}
+
+.boton {
+  align-self: flex-start;
+  background: #c11d14;
+  color: #f7efdd;
+  border: 3px solid #1c140c;
+  border-radius: 40px;
+  padding: 13px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #1c140c;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.boton:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #1c140c;
+}
+
+.boton:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.error,
+.ok {
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.error {
+  background: #fde8e6;
+  border-color: #c11d14;
+  color: #8e1410;
+}
+
+.ok {
+  background: #eaf5dc;
+  border-color: #7fb63c;
+  color: #3f6318;
+}
