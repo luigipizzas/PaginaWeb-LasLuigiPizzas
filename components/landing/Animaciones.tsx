@@ -22,6 +22,14 @@ export default function Animaciones() {
     gsap.registerPlugin(ScrollTrigger);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    // gsap.context() registra todo lo que se cree adentro. En el cleanup,
+    // ctx.revert() devuelve los elementos a su estado original en vez de
+    // dejarlos congelados a mitad de animación. Sin esto, React 19 monta el
+    // efecto dos veces en desarrollo y los gsap.from() quedan tomando como
+    // destino el valor inicial ya alterado (botones en opacity 0, hero con
+    // scale 1.06 desbordando en celular).
+    const ctx = gsap.context(() => {
+
     // ---------- Interacciones de la interfaz ----------
     /* ===================== MOBILE MENU ===================== */
     (function(){
@@ -340,12 +348,13 @@ export default function Animaciones() {
 
 
 
+    }); // fin de gsap.context()
+
     ScrollTrigger.refresh();
 
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-      gsap.globalTimeline.clear();
-    };
+    // revert() deshace animaciones y ScrollTriggers, y restaura los estilos
+    // originales: al volver a montarse, los from() arrancan limpios.
+    return () => ctx.revert();
   }, []);
 
   return null;

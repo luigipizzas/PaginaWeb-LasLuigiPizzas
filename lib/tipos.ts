@@ -23,11 +23,13 @@ export type Reel = {
 export type Sucursal = {
   id: string;
   nombre: string;
+  tag: string | null;
   direccion: string | null;
   horario: string | null;
   telefono: string | null;
   whatsapp: string | null;
   maps_url: string | null;
+  mapa_query: string | null;
   sort_order: number;
   visible: boolean;
 };

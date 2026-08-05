@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Landing from "@/components/landing/Landing";
-import type { Producto } from "@/lib/tipos";
+import type { Producto, Reel, Sucursal } from "@/lib/tipos";
 
 // Revalida cada 60s: los cambios del panel se ven enseguida sin rearmar el sitio.
 export const revalidate = 60;
@@ -8,9 +8,24 @@ export const revalidate = 60;
 export default async function Home() {
   const supabase = await createClient();
 
-  const [{ data: productos }, { data: contenido }] = await Promise.all([
+  const [
+    { data: productos },
+    { data: reels },
+    { data: sucursales },
+    { data: contenido },
+  ] = await Promise.all([
     supabase
       .from("products")
+      .select("*")
+      .eq("visible", true)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("reels")
+      .select("*")
+      .eq("visible", true)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("sucursales")
       .select("*")
       .eq("visible", true)
       .order("sort_order", { ascending: true }),
@@ -23,6 +38,11 @@ export default async function Home() {
   }
 
   return (
-    <Landing productos={(productos ?? []) as Producto[]} textos={textos} />
+    <Landing
+      productos={(productos ?? []) as Producto[]}
+      reels={(reels ?? []) as Reel[]}
+      sucursales={(sucursales ?? []) as Sucursal[]}
+      textos={textos}
+    />
   );
 }

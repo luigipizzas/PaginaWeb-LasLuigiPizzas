@@ -2,45 +2,65 @@
 
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
-import type { Producto } from "@/lib/tipos";
+import type { Producto, Reel, Sucursal } from "@/lib/tipos";
 import FichaProducto from "./FichaProducto";
+import FichaReel from "./FichaReel";
+import FichaSucursal from "./FichaSucursal";
 import PanelTextos from "./PanelTextos";
 import styles from "./editor.module.css";
 
-type Pestana = "menu" | "textos";
+type Pestana = "menu" | "reels" | "sucursales" | "textos";
 
 const PRODUCTO_NUEVO: Producto = {
-  id: "",
-  name: "",
-  tag: "",
-  price: "",
-  description: "",
-  image_url: "",
-  sort_order: 99,
-  visible: true,
+  id: "", name: "", tag: "", price: "", description: "",
+  image_url: "", sort_order: 99, visible: true,
+};
+const REEL_NUEVO: Reel = {
+  id: "", title: "", caption: "", ig_url: "", video_url: "",
+  poster_url: "", sort_order: 99, visible: true,
+};
+const SUCURSAL_NUEVA: Sucursal = {
+  id: "", nombre: "", tag: "", direccion: "", horario: "", telefono: "",
+  whatsapp: "", maps_url: "", mapa_query: "", sort_order: 99, visible: true,
 };
 
 export default function Editor({
   productos,
+  reels,
+  sucursales,
   textos,
   email,
 }: {
   productos: Producto[];
+  reels: Reel[];
+  sucursales: Sucursal[];
   textos: Record<string, Record<string, string>>;
   email: string;
 }) {
   const [pestana, setPestana] = useState<Pestana>("menu");
   const [agregando, setAgregando] = useState(false);
   const [vistaMovil, setVistaMovil] = useState(false);
+  // En celular no entran las dos columnas: se alterna entre editar y previsualizar.
+  const [mostrandoVista, setMostrandoVista] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Tras guardar, recargamos la vista previa para ver el cambio aplicado.
   const refrescarVista = useCallback(() => {
     const marco = iframeRef.current;
     if (!marco) return;
-    const base = marco.src.split("?")[0];
-    marco.src = `${base}?v=${Date.now()}`;
+    marco.src = `${marco.src.split("?")[0]}?v=${Date.now()}`;
   }, []);
+
+  const cambiarPestana = (p: Pestana) => {
+    setPestana(p);
+    setAgregando(false);
+  };
+
+  const etiquetaAgregar = {
+    menu: "+ Agregar producto",
+    reels: "+ Agregar reel",
+    sucursales: "+ Agregar sucursal",
+    textos: "",
+  }[pestana];
 
   return (
     <div className={styles.pantalla}>
@@ -53,13 +73,22 @@ export default function Editor({
         </div>
 
         <div className={styles.derecha}>
+          {/* Alternar editar / vista previa — solo aparece en pantallas chicas */}
+          <button
+            type="button"
+            className={styles.alternarMovil}
+            onClick={() => setMostrandoVista((v) => !v)}
+          >
+            {mostrandoVista ? "Editar" : "Ver la página"}
+          </button>
+
           <div className={styles.selectorVista}>
             <button
               type="button"
               className={!vistaMovil ? styles.vistaActiva : styles.vistaBoton}
               onClick={() => setVistaMovil(false)}
             >
-              Computadora
+              Compu
             </button>
             <button
               type="button"
@@ -73,62 +102,124 @@ export default function Editor({
         </div>
       </header>
 
-      <div className={styles.cuerpo}>
+      <div
+        className={`${styles.cuerpo} ${
+          mostrandoVista ? styles.cuerpoViendo : ""
+        }`}
+      >
         {/* ---------- Panel de edición ---------- */}
         <aside className={styles.panel}>
-          <nav className={styles.pestanas}>
+          {/* Va como div, no como <nav>: globals.css (CSS de la landing) tiene
+              una regla `nav{position:fixed}` para su navbar que se filtraría acá
+              y dejaría las pestañas flotando sobre la barra superior. */}
+          <div className={styles.pestanas} role="tablist">
             <button
               className={pestana === "menu" ? styles.pestanaActiva : styles.pestana}
-              onClick={() => setPestana("menu")}
+              onClick={() => cambiarPestana("menu")}
               type="button"
             >
-              Menú ({productos.length})
+              Menú <small>{productos.length}</small>
+            </button>
+            <button
+              className={pestana === "reels" ? styles.pestanaActiva : styles.pestana}
+              onClick={() => cambiarPestana("reels")}
+              type="button"
+            >
+              Reels <small>{reels.length}</small>
+            </button>
+            <button
+              className={
+                pestana === "sucursales" ? styles.pestanaActiva : styles.pestana
+              }
+              onClick={() => cambiarPestana("sucursales")}
+              type="button"
+            >
+              Locales <small>{sucursales.length}</small>
             </button>
             <button
               className={pestana === "textos" ? styles.pestanaActiva : styles.pestana}
-              onClick={() => setPestana("textos")}
+              onClick={() => cambiarPestana("textos")}
               type="button"
             >
               Textos
             </button>
-          </nav>
+          </div>
 
           <div className={styles.contenidoPanel}>
-            {pestana === "menu" && (
+            {pestana !== "textos" && (
               <>
                 <p className={styles.ayuda}>
-                  Tocá un producto para cambiar su foto, precio o descripción.
-                  Los cambios se ven al instante en la vista de al lado.
+                  Tocá un elemento para editarlo. Los cambios se ven al lado
+                  apenas guardás.
                 </p>
 
                 {agregando ? (
-                  <FichaProducto
-                    producto={PRODUCTO_NUEVO}
-                    esNuevo
-                    onGuardado={() => {
-                      setAgregando(false);
-                      refrescarVista();
-                    }}
-                    onCancelar={() => setAgregando(false)}
-                  />
+                  <>
+                    {pestana === "menu" && (
+                      <FichaProducto
+                        producto={PRODUCTO_NUEVO}
+                        esNuevo
+                        onGuardado={() => {
+                          setAgregando(false);
+                          refrescarVista();
+                        }}
+                        onCancelar={() => setAgregando(false)}
+                      />
+                    )}
+                    {pestana === "reels" && (
+                      <FichaReel
+                        reel={REEL_NUEVO}
+                        esNuevo
+                        onGuardado={() => {
+                          setAgregando(false);
+                          refrescarVista();
+                        }}
+                        onCancelar={() => setAgregando(false)}
+                      />
+                    )}
+                    {pestana === "sucursales" && (
+                      <FichaSucursal
+                        sucursal={SUCURSAL_NUEVA}
+                        esNuevo
+                        onGuardado={() => {
+                          setAgregando(false);
+                          refrescarVista();
+                        }}
+                        onCancelar={() => setAgregando(false)}
+                      />
+                    )}
+                  </>
                 ) : (
                   <button
                     className={styles.botonAgregar}
                     onClick={() => setAgregando(true)}
                     type="button"
                   >
-                    + Agregar producto
+                    {etiquetaAgregar}
                   </button>
                 )}
 
                 <div className={styles.lista}>
-                  {productos.map((p) => (
-                    <FichaProducto
-                      key={p.id}
-                      producto={p}
-                      onGuardado={refrescarVista}
-                    />
-                  ))}
+                  {pestana === "menu" &&
+                    productos.map((p) => (
+                      <FichaProducto
+                        key={p.id}
+                        producto={p}
+                        onGuardado={refrescarVista}
+                      />
+                    ))}
+                  {pestana === "reels" &&
+                    reels.map((r) => (
+                      <FichaReel key={r.id} reel={r} onGuardado={refrescarVista} />
+                    ))}
+                  {pestana === "sucursales" &&
+                    sucursales.map((s) => (
+                      <FichaSucursal
+                        key={s.id}
+                        sucursal={s}
+                        onGuardado={refrescarVista}
+                      />
+                    ))}
                 </div>
               </>
             )}

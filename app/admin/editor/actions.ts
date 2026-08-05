@@ -72,6 +72,119 @@ export async function borrarProducto(
   }
 }
 
+/* ============================== REELS ============================== */
+
+export async function guardarReel(
+  _prev: Resultado,
+  formData: FormData
+): Promise<Resultado> {
+  try {
+    const supabase = await exigirAdmin();
+
+    const id = String(formData.get("id") ?? "").trim();
+    const title = String(formData.get("title") ?? "").trim();
+    if (!title) return { error: "El reel necesita un título." };
+
+    const fila = {
+      title,
+      caption: String(formData.get("caption") ?? "").trim() || null,
+      ig_url: String(formData.get("ig_url") ?? "").trim() || null,
+      video_url: String(formData.get("video_url") ?? "").trim() || null,
+      poster_url: String(formData.get("poster_url") ?? "").trim() || null,
+      visible: formData.get("visible") === "on",
+      sort_order: Number(formData.get("sort_order") ?? 0) || 0,
+    };
+
+    const { error } = id
+      ? await supabase.from("reels").update(fila).eq("id", id)
+      : await supabase.from("reels").insert(fila);
+
+    if (error) return { error: "No pudimos guardar el reel." };
+
+    refrescarSitio();
+    return { ok: id ? "Reel actualizado." : "Reel agregado." };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Algo salió mal." };
+  }
+}
+
+export async function borrarReel(
+  _prev: Resultado,
+  formData: FormData
+): Promise<Resultado> {
+  try {
+    const supabase = await exigirAdmin();
+    const id = String(formData.get("id") ?? "");
+    if (!id) return { error: "Falta el reel a borrar." };
+
+    const { error } = await supabase.from("reels").delete().eq("id", id);
+    if (error) return { error: "No pudimos borrar el reel." };
+
+    refrescarSitio();
+    return { ok: "Reel borrado." };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Algo salió mal." };
+  }
+}
+
+/* ============================ SUCURSALES ============================ */
+
+export async function guardarSucursal(
+  _prev: Resultado,
+  formData: FormData
+): Promise<Resultado> {
+  try {
+    const supabase = await exigirAdmin();
+
+    const id = String(formData.get("id") ?? "").trim();
+    const nombre = String(formData.get("nombre") ?? "").trim();
+    if (!nombre) return { error: "La sucursal necesita un nombre." };
+
+    const fila = {
+      nombre,
+      tag: String(formData.get("tag") ?? "").trim() || null,
+      direccion: String(formData.get("direccion") ?? "").trim() || null,
+      horario: String(formData.get("horario") ?? "").trim() || null,
+      telefono: String(formData.get("telefono") ?? "").trim() || null,
+      whatsapp: String(formData.get("whatsapp") ?? "").trim() || null,
+      maps_url: String(formData.get("maps_url") ?? "").trim() || null,
+      mapa_query: String(formData.get("mapa_query") ?? "").trim() || null,
+      visible: formData.get("visible") === "on",
+      sort_order: Number(formData.get("sort_order") ?? 0) || 0,
+    };
+
+    const { error } = id
+      ? await supabase.from("sucursales").update(fila).eq("id", id)
+      : await supabase.from("sucursales").insert(fila);
+
+    if (error) return { error: "No pudimos guardar la sucursal." };
+
+    refrescarSitio();
+    return { ok: id ? "Sucursal actualizada." : "Sucursal agregada." };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Algo salió mal." };
+  }
+}
+
+export async function borrarSucursal(
+  _prev: Resultado,
+  formData: FormData
+): Promise<Resultado> {
+  try {
+    const supabase = await exigirAdmin();
+    const id = String(formData.get("id") ?? "");
+    if (!id) return { error: "Falta la sucursal a borrar." };
+
+    const { error } = await supabase.from("sucursales").delete().eq("id", id);
+    if (error) return { error: "No pudimos borrar la sucursal." };
+
+    refrescarSitio();
+    return { ok: "Sucursal borrada." };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Algo salió mal." };
+  }
+}
+
 /* ============================ TEXTOS ============================ */
 
 export async function guardarTextos(

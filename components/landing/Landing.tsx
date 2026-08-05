@@ -1,5 +1,7 @@
-import type { Producto } from "@/lib/tipos";
+import type { Producto, Reel, Sucursal } from "@/lib/tipos";
 import MenuGrid from "./MenuGrid";
+import ReelsGrid from "./ReelsGrid";
+import SucursalesGrid from "./SucursalesGrid";
 import Animaciones from "./Animaciones";
 
 /**
@@ -8,9 +10,13 @@ import Animaciones from "./Animaciones";
  */
 export default function Landing({
   productos,
+  reels = [],
+  sucursales = [],
   textos = {},
 }: {
   productos: Producto[];
+  reels?: Reel[];
+  sucursales?: Sucursal[];
   textos?: Record<string, Record<string, string>>;
 }) {
   // Devuelve el texto editable; si todavía no se cargó, no rompe nada.
@@ -114,7 +120,7 @@ export default function Landing({
             <div className="origen-photo">
               <div className="stamp">Hecho<br />en el<br />barrio</div>
               <div className="frame">
-                <img alt="El local de Las Luigi Pizzas" data-src="/local.PNG" />
+                <img alt="El local de Las Luigi Pizzas" src="/local.PNG" loading="lazy" />
               </div>
             </div>
             <div className="origen-copy">
@@ -159,67 +165,7 @@ export default function Landing({
             <span className="script">directo de Instagram</span>
           </div>
 
-          <div className="reels-grid" id="reelsGrid">
-            {/*
-              ▼▼▼  VIDEOS DE LOS REELS  ▼▼▼
-              Cada tarjeta reproduce un video propio (sin header de Instagram).
-              1) Creá una carpeta "videos" al lado de este archivo.
-              2) Poné adentro los .mp4 con estos nombres exactos:
-                   videos/reel1.mp4  ·  videos/reel2.mp4  ·  videos/reel3.mp4  ·  videos/reel4.mp4
-              3) (Opcional) portada real: videos/reel1.jpg, reel2.jpg, ... (si no, se usa la portada branded).
-              Mientras no estén los .mp4, la portada abre el reel en Instagram (nunca queda roto).
-              Para cambiar el video de una tarjeta, editá su data-video y su href.
-            */}
-
-            <article className="reel-card">
-              <video className="reel-vid" playsInline={true} preload="none" poster="/videos/reel1.jpg"></video>
-              <a className="reel-cover c1" href="https://www.instagram.com/reel/DaTgjNclTYc/" data-video="videos/reel1.mp4" target="_blank" rel="noopener">
-                <div className="reel-top"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c2.7 0 3.1 0 4.1.05 1.1.05 1.7.24 2.1.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.16.4.35 1 .4 2.1.05 1 .05 1.4.05 4.1s0 3.1-.05 4.1c-.05 1.1-.24 1.7-.4 2.1-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.16-1 .35-2.1.4-1 .05-1.4.05-4.1.05s-3.1 0-4.1-.05c-1.1-.05-1.7-.24-2.1-.4a3.5 3.5 0 0 1-1.3-.85 3.5 3.5 0 0 1-.85-1.3c-.16-.4-.35-1-.4-2.1C2.05 15.1 2.05 14.7 2.05 12s0-3.1.05-4.1c.05-1.1.24-1.7.4-2.1.2-.5.45-.9.85-1.3.4-.4.8-.65 1.3-.85.4-.16 1-.35 2.1-.4C8.9 2 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Zm5.2-8.4a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z" /></svg> @lasluigipizzas</div>
-                <div className="reel-mid">
-                  <div className="reel-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7L8 5Z" /></svg></div>
-                  <div className="reel-title">Lomo Luigi</div>
-                </div>
-                <div className="reel-cap">Juegan en otra liga</div>
-              </a>
-            </article>
-
-            <article className="reel-card">
-              <video className="reel-vid" playsInline={true} preload="none" poster="/videos/reel2.jpg"></video>
-              <a className="reel-cover c2" href="https://www.instagram.com/reel/DaEKq1PD6ZY/" data-video="videos/reel2.mp4" target="_blank" rel="noopener">
-                <div className="reel-top"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c2.7 0 3.1 0 4.1.05 1.1.05 1.7.24 2.1.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.16.4.35 1 .4 2.1.05 1 .05 1.4.05 4.1s0 3.1-.05 4.1c-.05 1.1-.24 1.7-.4 2.1-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.16-1 .35-2.1.4-1 .05-1.4.05-4.1.05s-3.1 0-4.1-.05c-1.1-.05-1.7-.24-2.1-.4a3.5 3.5 0 0 1-1.3-.85 3.5 3.5 0 0 1-.85-1.3c-.16-.4-.35-1-.4-2.1C2.05 15.1 2.05 14.7 2.05 12s0-3.1.05-4.1c.05-1.1.24-1.7.4-2.1.2-.5.45-.9.85-1.3.4-.4.8-.65 1.3-.85.4-.16 1-.35 2.1-.4C8.9 2 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Zm5.2-8.4a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z" /></svg> @lasluigipizzas</div>
-                <div className="reel-mid">
-                  <div className="reel-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7L8 5Z" /></svg></div>
-                  <div className="reel-title">Detrás de la cocina</div>
-                </div>
-                <div className="reel-cap">Los que hacen la magia</div>
-              </a>
-            </article>
-
-            <article className="reel-card">
-              <video className="reel-vid" playsInline={true} preload="none" poster="/videos/reel3.jpg"></video>
-              <a className="reel-cover c3" href="https://www.instagram.com/reel/DY98jG-BPgN/" data-video="videos/reel3.mp4" target="_blank" rel="noopener">
-                <div className="reel-top"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c2.7 0 3.1 0 4.1.05 1.1.05 1.7.24 2.1.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.16.4.35 1 .4 2.1.05 1 .05 1.4.05 4.1s0 3.1-.05 4.1c-.05 1.1-.24 1.7-.4 2.1-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.16-1 .35-2.1.4-1 .05-1.4.05-4.1.05s-3.1 0-4.1-.05c-1.1-.05-1.7-.24-2.1-.4a3.5 3.5 0 0 1-1.3-.85 3.5 3.5 0 0 1-.85-1.3c-.16-.4-.35-1-.4-2.1C2.05 15.1 2.05 14.7 2.05 12s0-3.1.05-4.1c.05-1.1.24-1.7.4-2.1.2-.5.45-.9.85-1.3.4-.4.8-.65 1.3-.85.4-.16 1-.35 2.1-.4C8.9 2 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Zm5.2-8.4a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z" /></svg> @lasluigipizzas</div>
-                <div className="reel-mid">
-                  <div className="reel-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7L8 5Z" /></svg></div>
-                  <div className="reel-title">¿Sabés quién vino?</div>
-                </div>
-                <div className="reel-cap">Hasta jugadores vienen</div>
-              </a>
-            </article>
-
-            <article className="reel-card">
-              <video className="reel-vid" playsInline={true} preload="none" poster="/videos/reel4.jpg"></video>
-              <a className="reel-cover c4" href="https://www.instagram.com/reel/DY45g_QuZB6/" data-video="videos/reel4.mp4" target="_blank" rel="noopener">
-                <div className="reel-top"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c2.7 0 3.1 0 4.1.05 1.1.05 1.7.24 2.1.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.16.4.35 1 .4 2.1.05 1 .05 1.4.05 4.1s0 3.1-.05 4.1c-.05 1.1-.24 1.7-.4 2.1-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.16-1 .35-2.1.4-1 .05-1.4.05-4.1.05s-3.1 0-4.1-.05c-1.1-.05-1.7-.24-2.1-.4a3.5 3.5 0 0 1-1.3-.85 3.5 3.5 0 0 1-.85-1.3c-.16-.4-.35-1-.4-2.1C2.05 15.1 2.05 14.7 2.05 12s0-3.1.05-4.1c.05-1.1.24-1.7.4-2.1.2-.5.45-.9.85-1.3.4-.4.8-.65 1.3-.85.4-.16 1-.35 2.1-.4C8.9 2 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Zm5.2-8.4a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z" /></svg> @lasluigipizzas</div>
-                <div className="reel-mid">
-                  <div className="reel-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7L8 5Z" /></svg></div>
-                  <div className="reel-title">¿Pinta un lomo?</div>
-                </div>
-                <div className="reel-cap">Mañana juega la Selección</div>
-              </a>
-            </article>
-          </div>
-
+          <ReelsGrid reels={reels} />
           <div className="reels-foot">
             <a className="btn ghost" href={linkIg} target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none" /></svg>
@@ -239,85 +185,8 @@ export default function Landing({
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </a>
 
-          {/*
-            ▼▼▼  SUCURSALES — COMPLETAR DATOS REALES  ▼▼▼
-            En cada tarjeta reemplazá: el nombre (.suc-name), la dirección, el horario y
-            el teléfono. En el botón "Llamar" poné href="tel:+5492611234567" y en
-            "Cómo llegar" el link de Google Maps de esa sucursal.
-          */}
-          <div className="sucursales">
-
-            <div className="suc-slot">
-            <article className="suc-card reveal">
-              <img className="suc-sticker" src="/sucursal-sticker.png" alt="Local de Las Luigi Pizzas" />
-              <span className="suc-tag">Local 1</span>
-              <h3 className="suc-name">
-                <svg className="pin" viewBox="0 0 24 24" fill="none" stroke="#7FB63C" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                Sucursal Centro
-              </h3>
-              <div className="suc-body">
-              <div className="suc-info">
-              <div className="suc-row">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                <span>Completá la dirección</span>
-              </div>
-              <div className="suc-row">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                <span>Martes a Domingo · 20:00 a 00:30</span>
-              </div>
-              <div className="suc-row">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8.1 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z" /></svg>
-                <span>Completá el teléfono</span>
-              </div>
-              <div className="suc-actions">
-                <a className="btn" href="#">Llamar</a>
-                <a className="btn ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Las+Luigi+Pizzas" target="_blank" rel="noopener">Cómo llegar</a>
-              </div>
-              </div>
-              <div className="suc-map">
-                {/* UBICACIÓN PROVISORIA: cambiá el valor de q= por la dirección real de esta sucursal */}
-                <iframe title="Mapa de la Sucursal Centro" loading="lazy" allowFullScreen={true} referrerPolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Plaza+Independencia,+Mendoza,+Argentina&amp;z=16&amp;output=embed"></iframe>
-              </div>
-            </div>
-            </article>
-            </div>
-
-            <div className="suc-slot">
-            <article className="suc-card reveal">
-              <img className="suc-sticker" src="/sucursal-sticker.png" alt="Local de Las Luigi Pizzas" />
-              <span className="suc-tag">Local 2</span>
-              <h3 className="suc-name">
-                <svg className="pin" viewBox="0 0 24 24" fill="none" stroke="#7FB63C" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                Sucursal Norte
-              </h3>
-              <div className="suc-body">
-              <div className="suc-info">
-              <div className="suc-row">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                <span>Completá la dirección</span>
-              </div>
-              <div className="suc-row">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                <span>Martes a Domingo · 20:00 a 00:30</span>
-              </div>
-              <div className="suc-row">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8.1 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z" /></svg>
-                <span>Completá el teléfono</span>
-              </div>
-              <div className="suc-actions">
-                <a className="btn" href="#">Llamar</a>
-                <a className="btn ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Las+Luigi+Pizzas" target="_blank" rel="noopener">Cómo llegar</a>
-              </div>
-              </div>
-              <div className="suc-map">
-                {/* UBICACIÓN PROVISORIA: cambiá el valor de q= por la dirección real de esta sucursal */}
-                <iframe title="Mapa de la Sucursal Norte" loading="lazy" allowFullScreen={true} referrerPolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Parque+General+San+Martin,+Mendoza,+Argentina&amp;z=15&amp;output=embed"></iframe>
-              </div>
-            </div>
-            </article>
-            </div>
-
-          </div>
+          {/* Las sucursales se cargan y editan desde el panel (/admin/editor) */}
+          <SucursalesGrid items={sucursales} />
         </div>
       </section>
 

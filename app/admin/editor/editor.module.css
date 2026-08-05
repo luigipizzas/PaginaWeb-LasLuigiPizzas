@@ -451,14 +451,142 @@
   display: block;
 }
 
-@media (max-width: 900px) {
+/* Archivo de video ya cargado */
+.archivoCargado {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f4ebd1;
+  border: 2px solid #1c140c;
+  border-radius: 9px;
+  padding: 8px 11px;
+}
+
+.archivoNombre {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  font-family: var(--font-mono), monospace;
+  color: #1c140c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Botón de alternar editar/ver: solo en pantallas chicas */
+.alternarMovil {
+  display: none;
+  background: #1c140c;
+  color: #f7efdd;
+  border: 0;
+  border-radius: 30px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1100px) {
+  .cuerpo {
+    grid-template-columns: 340px 1fr;
+  }
+  .email {
+    display: none;
+  }
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 820px) {
+  .pantalla {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .barra {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .titulo {
+    display: none;
+  }
+
+  .alternarMovil {
+    display: inline-block;
+  }
+
+  /* Una sola columna: se muestra el panel o la vista, según el botón */
   .cuerpo {
     grid-template-columns: 1fr;
+    height: auto;
   }
+
+  .panel {
+    border-right: 0;
+    min-height: calc(100vh - 58px);
+  }
+
   .vista {
     display: none;
   }
-  .panel {
-    border-right: 0;
+
+  /* Con la vista activada, se invierte qué se muestra */
+  .cuerpoViendo .panel {
+    display: none;
+  }
+
+  .cuerpoViendo .vista {
+    display: grid;
+    height: calc(100vh - 58px);
+    padding: 10px;
+  }
+
+  .pestanas {
+    overflow-x: auto;
+  }
+
+  .pestana,
+  .pestanaActiva {
+    padding: 12px 12px;
+    font-size: 13.5px;
+    white-space: nowrap;
+  }
+
+  .contenidoPanel {
+    padding: 13px;
+  }
+
+  /* En pantallas angostas los pares de campos se apilan */
+  .dosColumnas {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+
+  .checkbox {
+    padding-bottom: 0;
+  }
+
+  .accionesFicha {
+    flex-wrap: wrap;
+  }
+
+  .botonGuardar {
+    flex: 1 1 auto;
+  }
+
+  .marcoMovil {
+    width: 100%;
+  }
+}
+
+/* Pantallas muy angostas */
+@media (max-width: 420px) {
+  .selectorVista {
+    display: none;
+  }
+  .zonaImagen {
+    flex-wrap: wrap;
   }
 }
