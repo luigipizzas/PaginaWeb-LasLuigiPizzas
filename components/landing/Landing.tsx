@@ -6,7 +6,22 @@ import Animaciones from "./Animaciones";
  * Landing de Las Luigi Pizzas.
  * El markup es el original portado a JSX; el contenido dinámico llega por props.
  */
-export default function Landing({ productos }: { productos: Producto[] }) {
+export default function Landing({
+  productos,
+  textos = {},
+}: {
+  productos: Producto[];
+  textos?: Record<string, Record<string, string>>;
+}) {
+  // Devuelve el texto editable; si todavía no se cargó, no rompe nada.
+  const txt = (seccion: string, campo: string) => textos[seccion]?.[campo] ?? "";
+
+  const wa = (textos.contacto?.whatsapp ?? "").replace(/\D/g, "");
+  const linkWa = wa ? `https://wa.me/${wa}` : "#local";
+  const linkIg = `https://www.instagram.com/${
+    textos.contacto?.instagram ?? "lasluigipizzas"
+  }`;
+
   return (
     <>
       {/* ===== SVG SPRITES (brand mark reused) ===== */}
@@ -103,11 +118,11 @@ export default function Landing({ productos }: { productos: Producto[] }) {
               </div>
             </div>
             <div className="origen-copy">
-              <span className="sec-kicker script">La parte que más nos gusta</span>
-              <h2 className="origen-big reveal">LUIGI</h2>
-              <p className="lead reveal">Somos un local de barrio, de esos donde te conocen por el nombre y saben cómo te gusta la pizza antes de que la pidas.</p>
-              <p className="reveal">Amasamos a mano, horneamos a la piedra y armamos cada lomo, hamburguesa y empanada como si fuera para nosotros. Nada de vueltas: ingredientes de verdad y porciones que se sienten.</p>
-              <p className="reveal">Y si hay partido de la Selección, ya sabés: la cocina se prende a full. Pasá, pedí, y quedate con la parte que más nos gusta.</p>
+              <span className="sec-kicker script">{txt("nosotros","kicker")}</span>
+              <h2 className="origen-big reveal">{txt("nosotros","titulo")}</h2>
+              <p className="lead reveal">{txt("nosotros","parrafo1")}</p>
+              <p className="reveal">{txt("nosotros","parrafo2")}</p>
+              <p className="reveal">{txt("nosotros","parrafo3")}</p>
             </div>
           </div>
         </div>
@@ -206,7 +221,7 @@ export default function Landing({ productos }: { productos: Producto[] }) {
           </div>
 
           <div className="reels-foot">
-            <a className="btn ghost" href="https://www.instagram.com/lasluigipizzas" target="_blank" rel="noopener">
+            <a className="btn ghost" href={linkIg} target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none" /></svg>
               Seguinos en Instagram
             </a>
@@ -218,9 +233,9 @@ export default function Landing({ productos }: { productos: Producto[] }) {
       <section className="cta-band" id="local">
         <div className="wrap">
           <span className="script">¿Te dio hambre?</span>
-          <h2 className="reveal">PEDÍ AHORA</h2>
-          <p className="reveal">Abierto de Martes a Domingo · Envíos a domicilio · Retiro en el local</p>
-          <a className="btn reveal" id="waTarget" href="#">Hacé tu pedido por WhatsApp
+          <h2 className="reveal">{txt("cta","titulo")}</h2>
+          <p className="reveal">{txt("cta","texto")}</p>
+          <a className="btn reveal" id="waTarget" href={linkWa}>{txt("cta","boton")}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </a>
 
@@ -326,7 +341,7 @@ export default function Landing({ productos }: { productos: Producto[] }) {
             <div className="foot-col">
               <h5>Contacto</h5>
               <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8.1 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z" /></svg>Pedí por WhatsApp</a>
-              <a href="https://www.instagram.com/lasluigipizzas" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" /></svg>@lasluigipizzas</a>
+              <a href={linkIg} target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" /></svg>@{txt("contacto","instagram")}</a>
               <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>Nuestro local</a>
             </div>
           </div>
@@ -338,14 +353,14 @@ export default function Landing({ productos }: { productos: Producto[] }) {
       </footer>
 
       {/* BOTÓN FLOTANTE WHATSAPP (se transforma en el CTA al llegar a "¿Te dio hambre?") */}
-      <a className="wa-fab" id="waFab" href="#" aria-label="Hacé tu pedido por WhatsApp">
+      <a className="wa-fab" id="waFab" href={linkWa} aria-label="Hacé tu pedido por WhatsApp">
         <span className="wa-fab-ico" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2a10 10 0 0 0-8.6 15.06L2 22l5.06-1.35A10 10 0 1 0 12 2Zm0 18.2a8.17 8.17 0 0 1-4.16-1.14l-.3-.18-3.08.82.82-3-.19-.31A8.2 8.2 0 1 1 12 20.2Z" />
             <path d="M16.9 14.2c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.13-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.18-1.34-.8-.72-1.35-1.6-1.51-1.87-.16-.27-.02-.42.12-.55.12-.12.27-.32.4-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.01-.22-.53-.44-.46-.61-.46h-.52c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.26s.98 2.62 1.11 2.8c.14.18 1.9 2.9 4.6 4.07.64.28 1.15.44 1.54.57.65.2 1.24.18 1.7.11.52-.08 1.6-.65 1.83-1.29.23-.63.23-1.17.16-1.29-.07-.11-.25-.18-.52-.32Z" />
           </svg>
         </span>
-        <span className="wa-fab-text">Hacé tu pedido por WhatsApp</span>
+        <span className="wa-fab-text">{txt("cta","boton")}</span>
       </a>
       <Animaciones />
     </>

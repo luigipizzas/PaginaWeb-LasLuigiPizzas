@@ -8,11 +8,21 @@ export const revalidate = 60;
 export default async function Home() {
   const supabase = await createClient();
 
-  const { data } = await supabase
-    .from("products")
-    .select("*")
-    .eq("visible", true)
-    .order("sort_order", { ascending: true });
+  const [{ data: productos }, { data: contenido }] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*")
+      .eq("visible", true)
+      .order("sort_order", { ascending: true }),
+    supabase.from("content").select("key, value"),
+  ]);
 
-  return <Landing productos={(data ?? []) as Producto[]} />;
+  const textos: Record<string, Record<string, string>> = {};
+  for (const fila of contenido ?? []) {
+    textos[fila.key] = (fila.value ?? {}) as Record<string, string>;
+  }
+
+  return (
+    <Landing productos={(productos ?? []) as Producto[]} textos={textos} />
+  );
 }
