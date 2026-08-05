@@ -1,0 +1,112 @@
+.pantalla {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #c11d14;
+}
+
+.tarjeta {
+  width: 100%;
+  max-width: 420px;
+  background: #f7efdd;
+  border: 3px solid #1c140c;
+  border-radius: 18px;
+  box-shadow: 8px 8px 0 #1c140c;
+  padding: 38px 32px 30px;
+  text-align: center;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Luckiest Guy", system-ui, cursive;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: #c11d14;
+  margin-bottom: 22px;
+}
+
+.logo {
+  width: 34px;
+  height: 34px;
+  flex: none;
+}
+
+.titulo {
+  font-family: "Luckiest Guy", system-ui, cursive;
+  font-size: 27px;
+  line-height: 1.1;
+  color: #1c140c;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.bajada {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #241708;
+  opacity: 0.85;
+  margin-bottom: 26px;
+}
+
+.boton {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  background: #fff;
+  color: #1c140c;
+  border: 3px solid #1c140c;
+  border-radius: 40px;
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #1c140c;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.boton:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #1c140c;
+}
+
+.boton:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1c140c;
+}
+
+.boton:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.iconoGoogle {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.error {
+  background: #fde8e6;
+  border: 2px solid #c11d14;
+  color: #8e1410;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.nota {
+  margin-top: 20px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #241708;
+  opacity: 0.62;
+}
