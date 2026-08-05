@@ -451,6 +451,73 @@
   display: block;
 }
 
+/* Fila + flechas de orden */
+.filaConOrden {
+  display: flex;
+  align-items: stretch;
+  gap: 7px;
+}
+
+.filaConOrden .filaProducto {
+  flex: 1;
+  min-width: 0;
+}
+
+.reordenar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: none;
+}
+
+.flecha {
+  width: 30px;
+  flex: 1;
+  background: #fff;
+  border: 2px solid #1c140c;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1;
+  font-family: inherit;
+  cursor: pointer;
+  color: #1c140c;
+}
+
+.flecha:hover:not(:disabled) {
+  background: #7fb63c;
+}
+
+.flecha:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+/* Cabecera de ficha con el estado de guardado */
+.cabeceraFicha {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 16px;
+}
+
+.estadoGuardado {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7fb63c;
+  white-space: nowrap;
+}
+
+/* Aclaración debajo de un campo */
+.pista {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #241708;
+  opacity: 0.68;
+}
+
 /* Archivo de video ya cargado */
 .archivoCargado {
   display: flex;

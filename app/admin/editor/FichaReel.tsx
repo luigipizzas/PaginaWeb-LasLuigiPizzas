@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useActionState, useEffect } from "react";
+import { useState, useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import type { Reel } from "@/lib/tipos";
 import { guardarReel, borrarReel, type Resultado } from "./actions";
+import { useAutoGuardado, textoEstado } from "./useAutoGuardado";
 import SubirArchivo from "./SubirArchivo";
+import Reordenar from "./Reordenar";
 import styles from "./editor.module.css";
 
-function BotonGuardar() {
+function BotonAgregar() {
   const { pending } = useFormStatus();
   return (
     <button className={styles.botonGuardar} type="submit" disabled={pending}>
-      {pending ? "Guardando…" : "Guardar"}
+      {pending ? "Agregando…" : "Agregar reel"}
     </button>
   );
 }
@@ -21,11 +23,15 @@ export default function FichaReel({
   esNuevo = false,
   onGuardado,
   onCancelar,
+  posicion,
+  total,
 }: {
   reel: Reel;
   esNuevo?: boolean;
   onGuardado?: () => void;
   onCancelar?: () => void;
+  posicion?: number;
+  total?: number;
 }) {
   const [abierta, setAbierta] = useState(esNuevo);
   const [portada, setPortada] = useState(reel.poster_url ?? "");
@@ -37,40 +43,72 @@ export default function FichaReel({
     {}
   );
 
+  const auto = useAutoGuardado({ activo: !esNuevo });
+
   useEffect(() => {
-    if (estado.ok || estadoBorrar.ok) onGuardado?.();
-  }, [estado.ok, estadoBorrar.ok, onGuardado]);
+    if (estado.ok) {
+      auto.marcarGuardado();
+      onGuardado?.();
+    }
+    if (estadoBorrar.ok) onGuardado?.();
+  }, [estado.ok, estadoBorrar.ok, onGuardado, auto]);
+
+  // Igual que en productos: el guardado se dispara desde un efecto para que
+  // React ya haya escrito la URL nueva en el campo oculto.
+  const montado = useRef(false);
+  useEffect(() => {
+    if (!montado.current) { montado.current = true; return; }
+    if (!esNuevo) auto.guardarYa();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [portada, video]);
 
   if (!abierta) {
     return (
-      <button
-        className={styles.filaProducto}
-        onClick={() => setAbierta(true)}
-        type="button"
-      >
-        {portada ? (
-          <img className={styles.miniatura} src={portada} alt="" />
-        ) : (
-          <span className={styles.miniaturaVacia} />
-        )}
-        <span className={styles.filaTexto}>
-          <strong>{reel.title}</strong>
-          <span>{reel.caption}</span>
-        </span>
-        {!reel.visible && <span className={styles.oculto}>Oculto</span>}
-      </button>
+      <div className={styles.filaConOrden}>
+        <button
+          className={styles.filaProducto}
+          onClick={() => setAbierta(true)}
+          type="button"
+        >
+          {portada ? (
+            <img className={styles.miniatura} src={portada} alt="" />
+          ) : (
+            <span className={styles.miniaturaVacia} />
+          )}
+          <span className={styles.filaTexto}>
+            <strong>{reel.title}</strong>
+            <span>{reel.caption}</span>
+          </span>
+          {!reel.visible && <span className={styles.oculto}>Oculto</span>}
+        </button>
+        <Reordenar
+          tabla="reels"
+          id={reel.id}
+          posicion={posicion}
+          total={total}
+          onMovido={onGuardado}
+        />
+      </div>
     );
   }
 
   return (
     <div className={styles.ficha}>
-      <form action={guardar} className={styles.formFicha}>
+      <form ref={auto.formRef} action={guardar} className={styles.formFicha}>
         <input type="hidden" name="id" value={reel.id} />
         <input type="hidden" name="poster_url" value={portada} />
         <input type="hidden" name="video_url" value={video} />
+        <input type="hidden" name="sort_order" value={reel.sort_order} />
+
+        {!esNuevo && (
+          <div className={styles.cabeceraFicha}>
+            <span className={styles.estadoGuardado}>
+              {textoEstado(auto.estado)}
+            </span>
+          </div>
+        )}
 
         {estado.error && <div className={styles.error}>{estado.error}</div>}
-        {estado.ok && <div className={styles.ok}>{estado.ok}</div>}
 
         <SubirArchivo
           valorActual={portada}
@@ -82,7 +120,9 @@ export default function FichaReel({
           <span className={styles.etiqueta}>Video (opcional)</span>
           {video ? (
             <div className={styles.archivoCargado}>
-              <span className={styles.archivoNombre}>{video.split("/").pop()}</span>
+              <span className={styles.archivoNombre}>
+                {video.split("/").pop()}
+              </span>
               <button
                 className={styles.botonTexto}
                 type="button"
@@ -98,6 +138,10 @@ export default function FichaReel({
               etiqueta="Subir video"
             />
           )}
+          <small className={styles.pista}>
+            Si cargás un video, se reproduce dentro de la tarjeta. Si no, la
+            portada abre el reel en Instagram.
+          </small>
         </div>
 
         <label className={styles.campo}>
@@ -106,6 +150,7 @@ export default function FichaReel({
             className={styles.input}
             name="title"
             defaultValue={reel.title ?? ""}
+            onInput={auto.alCambiar}
             required
           />
         </label>
@@ -116,6 +161,7 @@ export default function FichaReel({
             className={styles.input}
             name="caption"
             defaultValue={reel.caption ?? ""}
+            onInput={auto.alCambiar}
           />
         </label>
 
@@ -125,35 +171,42 @@ export default function FichaReel({
             className={styles.input}
             name="ig_url"
             defaultValue={reel.ig_url ?? ""}
+            onInput={auto.alCambiar}
             placeholder="https://www.instagram.com/reel/..."
           />
         </label>
 
-        <div className={styles.dosColumnas}>
-          <label className={styles.campo}>
-            <span className={styles.etiqueta}>Orden</span>
-            <input
-              className={styles.input}
-              name="sort_order"
-              type="number"
-              defaultValue={reel.sort_order}
-            />
-          </label>
-          <label className={styles.checkbox}>
-            <input type="checkbox" name="visible" defaultChecked={reel.visible} />
-            <span>Mostrar en la página</span>
-          </label>
-        </div>
+        <label className={styles.checkbox}>
+          <input
+            type="checkbox"
+            name="visible"
+            defaultChecked={reel.visible}
+            onChange={auto.guardarYa}
+          />
+          <span>Mostrar en la página</span>
+        </label>
 
         <div className={styles.accionesFicha}>
-          <BotonGuardar />
-          <button
-            className={styles.botonSecundario}
-            type="button"
-            onClick={() => (esNuevo ? onCancelar?.() : setAbierta(false))}
-          >
-            {esNuevo ? "Cancelar" : "Cerrar"}
-          </button>
+          {esNuevo ? (
+            <>
+              <BotonAgregar />
+              <button
+                className={styles.botonSecundario}
+                type="button"
+                onClick={onCancelar}
+              >
+                Cancelar
+              </button>
+            </>
+          ) : (
+            <button
+              className={styles.botonSecundario}
+              type="button"
+              onClick={() => setAbierta(false)}
+            >
+              Listo
+            </button>
+          )}
         </div>
       </form>
 

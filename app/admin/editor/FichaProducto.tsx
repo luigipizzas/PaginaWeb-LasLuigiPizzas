@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useActionState, useEffect } from "react";
+import { useState, useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import type { Producto } from "@/lib/tipos";
 import { guardarProducto, borrarProducto, type Resultado } from "./actions";
+import { useAutoGuardado, textoEstado } from "./useAutoGuardado";
 import SubirArchivo from "./SubirArchivo";
+import Reordenar from "./Reordenar";
 import styles from "./editor.module.css";
 
-function BotonGuardar() {
+function BotonAgregar() {
   const { pending } = useFormStatus();
   return (
     <button className={styles.botonGuardar} type="submit" disabled={pending}>
-      {pending ? "Guardando…" : "Guardar"}
+      {pending ? "Agregando…" : "Agregar producto"}
     </button>
   );
 }
@@ -21,11 +23,15 @@ export default function FichaProducto({
   esNuevo = false,
   onGuardado,
   onCancelar,
+  posicion,
+  total,
 }: {
   producto: Producto;
   esNuevo?: boolean;
   onGuardado?: () => void;
   onCancelar?: () => void;
+  posicion?: number;
+  total?: number;
 }) {
   const [abierta, setAbierta] = useState(esNuevo);
   const [imagen, setImagen] = useState(producto.image_url ?? "");
@@ -39,43 +45,75 @@ export default function FichaProducto({
     {}
   );
 
+  const auto = useAutoGuardado({ activo: !esNuevo });
+
   useEffect(() => {
-    if (estado.ok || estadoBorrar.ok) onGuardado?.();
-  }, [estado.ok, estadoBorrar.ok, onGuardado]);
+    if (estado.ok) {
+      auto.marcarGuardado();
+      onGuardado?.();
+    }
+    if (estadoBorrar.ok) onGuardado?.();
+  }, [estado.ok, estadoBorrar.ok, onGuardado, auto]);
+
+  // Cambiar la foto guarda enseguida. Se dispara desde un efecto y no justo
+  // después de setImagen: hay que esperar a que React escriba la URL nueva en
+  // el campo oculto, si no se envía la anterior.
+  const montado = useRef(false);
+  useEffect(() => {
+    if (!montado.current) {
+      montado.current = true;
+      return;
+    }
+    if (!esNuevo) auto.guardarYa();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imagen]);
 
   if (!abierta) {
     return (
-      <button
-        className={styles.filaProducto}
-        onClick={() => setAbierta(true)}
-        type="button"
-      >
-        {producto.image_url ? (
-          <img
-            className={styles.miniatura}
-            src={producto.image_url}
-            alt=""
-          />
-        ) : (
-          <span className={styles.miniaturaVacia} />
-        )}
-        <span className={styles.filaTexto}>
-          <strong>{producto.name}</strong>
-          <span>{producto.price}</span>
-        </span>
-        {!producto.visible && <span className={styles.oculto}>Oculto</span>}
-      </button>
+      <div className={styles.filaConOrden}>
+        <button
+          className={styles.filaProducto}
+          onClick={() => setAbierta(true)}
+          type="button"
+        >
+          {producto.image_url ? (
+            <img className={styles.miniatura} src={producto.image_url} alt="" />
+          ) : (
+            <span className={styles.miniaturaVacia} />
+          )}
+          <span className={styles.filaTexto}>
+            <strong>{producto.name}</strong>
+            <span>{producto.price}</span>
+          </span>
+          {!producto.visible && <span className={styles.oculto}>Oculto</span>}
+        </button>
+        <Reordenar
+          tabla="products"
+          id={producto.id}
+          posicion={posicion}
+          total={total}
+          onMovido={onGuardado}
+        />
+      </div>
     );
   }
 
   return (
     <div className={styles.ficha}>
-      <form action={guardar} className={styles.formFicha}>
+      <form ref={auto.formRef} action={guardar} className={styles.formFicha}>
         <input type="hidden" name="id" value={producto.id} />
         <input type="hidden" name="image_url" value={imagen} />
+        <input type="hidden" name="sort_order" value={producto.sort_order} />
+
+        {!esNuevo && (
+          <div className={styles.cabeceraFicha}>
+            <span className={styles.estadoGuardado}>
+              {textoEstado(auto.estado)}
+            </span>
+          </div>
+        )}
 
         {estado.error && <div className={styles.error}>{estado.error}</div>}
-        {estado.ok && <div className={styles.ok}>{estado.ok}</div>}
 
         <SubirArchivo valorActual={imagen} onSubido={setImagen} />
 
@@ -85,6 +123,7 @@ export default function FichaProducto({
             className={styles.input}
             name="name"
             defaultValue={producto.name}
+            onInput={auto.alCambiar}
             required
           />
         </label>
@@ -96,6 +135,7 @@ export default function FichaProducto({
               className={styles.input}
               name="price"
               defaultValue={producto.price ?? ""}
+              onInput={auto.alCambiar}
               placeholder="$10.500"
             />
           </label>
@@ -105,6 +145,7 @@ export default function FichaProducto({
               className={styles.input}
               name="tag"
               defaultValue={producto.tag ?? ""}
+              onInput={auto.alCambiar}
               placeholder="La clásica"
             />
           </label>
@@ -117,38 +158,41 @@ export default function FichaProducto({
             name="description"
             rows={3}
             defaultValue={producto.description ?? ""}
+            onInput={auto.alCambiar}
           />
         </label>
 
-        <div className={styles.dosColumnas}>
-          <label className={styles.campo}>
-            <span className={styles.etiqueta}>Orden</span>
-            <input
-              className={styles.input}
-              name="sort_order"
-              type="number"
-              defaultValue={producto.sort_order}
-            />
-          </label>
-          <label className={styles.checkbox}>
-            <input
-              type="checkbox"
-              name="visible"
-              defaultChecked={producto.visible}
-            />
-            <span>Mostrar en la página</span>
-          </label>
-        </div>
+        <label className={styles.checkbox}>
+          <input
+            type="checkbox"
+            name="visible"
+            defaultChecked={producto.visible}
+            onChange={auto.guardarYa}
+          />
+          <span>Mostrar en la página</span>
+        </label>
 
         <div className={styles.accionesFicha}>
-          <BotonGuardar />
-          <button
-            className={styles.botonSecundario}
-            type="button"
-            onClick={() => (esNuevo ? onCancelar?.() : setAbierta(false))}
-          >
-            {esNuevo ? "Cancelar" : "Cerrar"}
-          </button>
+          {esNuevo ? (
+            <>
+              <BotonAgregar />
+              <button
+                className={styles.botonSecundario}
+                type="button"
+                onClick={onCancelar}
+              >
+                Cancelar
+              </button>
+            </>
+          ) : (
+            <button
+              className={styles.botonSecundario}
+              type="button"
+              onClick={() => setAbierta(false)}
+            >
+              Listo
+            </button>
+          )}
         </div>
       </form>
 

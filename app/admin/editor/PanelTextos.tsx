@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
-import { useFormStatus } from "react-dom";
 import { guardarTextos, type Resultado } from "./actions";
+import { useAutoGuardado, textoEstado } from "./useAutoGuardado";
 import styles from "./editor.module.css";
 
 /** Qué textos de la landing se pueden editar, agrupados por sección. */
@@ -41,15 +41,6 @@ const ESQUEMA = [
   },
 ] as const;
 
-function BotonGuardar() {
-  const { pending } = useFormStatus();
-  return (
-    <button className={styles.botonGuardar} type="submit" disabled={pending}>
-      {pending ? "Guardando…" : "Guardar textos"}
-    </button>
-  );
-}
-
 export default function PanelTextos({
   textos,
   onGuardado,
@@ -61,19 +52,25 @@ export default function PanelTextos({
     guardarTextos,
     {}
   );
+  const auto = useAutoGuardado();
 
   useEffect(() => {
-    if (estado.ok) onGuardado?.();
-  }, [estado.ok, onGuardado]);
+    if (estado.ok) {
+      auto.marcarGuardado();
+      onGuardado?.();
+    }
+  }, [estado.ok, onGuardado, auto]);
 
   return (
-    <form action={accion} className={styles.formTextos}>
-      <p className={styles.ayuda}>
-        Cambiá los textos de la página. Se actualizan apenas guardás.
-      </p>
+    <form ref={auto.formRef} action={accion} className={styles.formTextos}>
+      <div className={styles.cabeceraFicha}>
+        <p className={styles.ayuda}>
+          Cambiá los textos de la página. Se guardan solos.
+        </p>
+        <span className={styles.estadoGuardado}>{textoEstado(auto.estado)}</span>
+      </div>
 
       {estado.error && <div className={styles.error}>{estado.error}</div>}
-      {estado.ok && <div className={styles.ok}>{estado.ok}</div>}
 
       {ESQUEMA.map((seccion) => (
         <fieldset key={seccion.clave} className={styles.grupoTextos}>
@@ -91,12 +88,14 @@ export default function PanelTextos({
                     name={nombre}
                     rows={3}
                     defaultValue={valor}
+                    onInput={auto.alCambiar}
                   />
                 ) : (
                   <input
                     className={styles.input}
                     name={nombre}
                     defaultValue={valor}
+                    onInput={auto.alCambiar}
                   />
                 )}
               </label>
@@ -104,8 +103,6 @@ export default function PanelTextos({
           })}
         </fieldset>
       ))}
-
-      <BotonGuardar />
     </form>
   );
 }

@@ -33,14 +33,9 @@ export default function ReelsGrid({ reels }: { reels: Reel[] }) {
             target="_blank"
             rel="noopener"
           >
-            <div className="reel-top">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
-              </svg>
-              Reel
-            </div>
+            {/* Sin encabezado: el ícono de Instagram y la palabra "Reel" se
+                sacaron a pedido, la portada va limpia. */}
+            <div className="reel-top" aria-hidden="true" />
             <div className="reel-mid">
               <div className="reel-play">
                 <svg viewBox="0 0 24 24" fill="#fff">

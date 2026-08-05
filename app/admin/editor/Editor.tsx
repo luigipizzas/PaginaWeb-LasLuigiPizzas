@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Producto, Reel, Sucursal } from "@/lib/tipos";
 import FichaProducto from "./FichaProducto";
@@ -43,12 +44,15 @@ export default function Editor({
   // En celular no entran las dos columnas: se alterna entre editar y previsualizar.
   const [mostrandoVista, setMostrandoVista] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const router = useRouter();
 
+  // Refresca la vista previa y también los datos del panel (hace falta para
+  // que la lista refleje el nuevo orden o el nombre recién cambiado).
   const refrescarVista = useCallback(() => {
     const marco = iframeRef.current;
-    if (!marco) return;
-    marco.src = `${marco.src.split("?")[0]}?v=${Date.now()}`;
-  }, []);
+    if (marco) marco.src = `${marco.src.split("?")[0]}?v=${Date.now()}`;
+    router.refresh();
+  }, [router]);
 
   const cambiarPestana = (p: Pestana) => {
     setPestana(p);
@@ -149,8 +153,9 @@ export default function Editor({
             {pestana !== "textos" && (
               <>
                 <p className={styles.ayuda}>
-                  Tocá un elemento para editarlo. Los cambios se ven al lado
-                  apenas guardás.
+                  Tocá un elemento para editarlo. Se guarda solo mientras
+                  escribís y la vista de al lado se actualiza sola. Con las
+                  flechas ↑ ↓ cambiás el orden en que aparecen.
                 </p>
 
                 {agregando ? (
@@ -201,22 +206,32 @@ export default function Editor({
 
                 <div className={styles.lista}>
                   {pestana === "menu" &&
-                    productos.map((p) => (
+                    productos.map((p, i) => (
                       <FichaProducto
                         key={p.id}
                         producto={p}
+                        posicion={i}
+                        total={productos.length}
                         onGuardado={refrescarVista}
                       />
                     ))}
                   {pestana === "reels" &&
-                    reels.map((r) => (
-                      <FichaReel key={r.id} reel={r} onGuardado={refrescarVista} />
+                    reels.map((r, i) => (
+                      <FichaReel
+                        key={r.id}
+                        reel={r}
+                        posicion={i}
+                        total={reels.length}
+                        onGuardado={refrescarVista}
+                      />
                     ))}
                   {pestana === "sucursales" &&
-                    sucursales.map((s) => (
+                    sucursales.map((s, i) => (
                       <FichaSucursal
                         key={s.id}
                         sucursal={s}
+                        posicion={i}
+                        total={sucursales.length}
                         onGuardado={refrescarVista}
                       />
                     ))}

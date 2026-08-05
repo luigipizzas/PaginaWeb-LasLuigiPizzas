@@ -185,6 +185,57 @@ export async function borrarSucursal(
   }
 }
 
+/* ============================ ORDEN ============================ */
+
+const TABLAS_ORDENABLES = ["products", "reels", "sucursales"] as const;
+export type TablaOrdenable = (typeof TABLAS_ORDENABLES)[number];
+
+/**
+ * Sube o baja un elemento intercambiando su posición con el vecino.
+ * Evita que el cliente tenga que entender números de orden.
+ */
+export async function moverElemento(
+  tabla: TablaOrdenable,
+  id: string,
+  direccion: "arriba" | "abajo"
+): Promise<Resultado> {
+  try {
+    if (!TABLAS_ORDENABLES.includes(tabla)) return { error: "Sección inválida." };
+    const supabase = await exigirAdmin();
+
+    const { data: filas, error: errorLectura } = await supabase
+      .from(tabla)
+      .select("id, sort_order")
+      .order("sort_order", { ascending: true });
+
+    if (errorLectura || !filas) return { error: "No pudimos leer el orden." };
+
+    const i = filas.findIndex((f) => f.id === id);
+    if (i < 0) return { error: "No encontramos el elemento." };
+
+    const j = direccion === "arriba" ? i - 1 : i + 1;
+    if (j < 0 || j >= filas.length) return { ok: "Ya está en la punta." };
+
+    // Intercambiamos posiciones. Reescribimos por índice para normalizar
+    // valores repetidos o con huecos que pudieran venir de antes.
+    const orden = filas.map((_, k) => k + 1);
+    [orden[i], orden[j]] = [orden[j], orden[i]];
+
+    for (let k = 0; k < filas.length; k++) {
+      const { error } = await supabase
+        .from(tabla)
+        .update({ sort_order: orden[k] })
+        .eq("id", filas[k].id);
+      if (error) return { error: "No pudimos guardar el orden." };
+    }
+
+    refrescarSitio();
+    return { ok: "Orden actualizado." };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Algo salió mal." };
+  }
+}
+
 /* ============================ TEXTOS ============================ */
 
 export async function guardarTextos(
