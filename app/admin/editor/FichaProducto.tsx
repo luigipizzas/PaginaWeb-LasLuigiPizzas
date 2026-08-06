@@ -4,7 +4,7 @@ import { useState, useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import type { Producto } from "@/lib/tipos";
 import { guardarProducto, borrarProducto, type Resultado } from "./actions";
-import { useAutoGuardado, textoEstado } from "./useAutoGuardado";
+import { useAutoGuardado, textoEstado, useResultadoNuevo } from "./useAutoGuardado";
 import SubirArchivo from "./SubirArchivo";
 import Reordenar from "./Reordenar";
 import styles from "./editor.module.css";
@@ -47,13 +47,18 @@ export default function FichaProducto({
 
   const auto = useAutoGuardado({ activo: !esNuevo });
 
-  useEffect(() => {
-    if (estado.ok) {
+  // Reaccionamos SOLO cuando llega un resultado nuevo del servidor. Antes esto
+  // dependía del objeto del hook, que cambiaba en cada render: guardar
+  // refrescaba, el refresco re-renderizaba y volvía a disparar el guardado.
+  useResultadoNuevo(estado, (r) => {
+    if (r.ok) {
       auto.marcarGuardado();
       onGuardado?.();
     }
-    if (estadoBorrar.ok) onGuardado?.();
-  }, [estado.ok, estadoBorrar.ok, onGuardado, auto]);
+  });
+  useResultadoNuevo(estadoBorrar, (r) => {
+    if (r.ok) onGuardado?.();
+  });
 
   // Cambiar la foto guarda enseguida. Se dispara desde un efecto y no justo
   // después de setImagen: hay que esperar a que React escriba la URL nueva en

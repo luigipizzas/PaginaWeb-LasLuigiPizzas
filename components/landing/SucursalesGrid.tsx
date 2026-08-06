@@ -13,8 +13,18 @@ const PinSvg = () => (
   </svg>
 );
 
-/** Tarjetas de sucursales, con el mismo markup original pero desde la base. */
-export default function SucursalesGrid({ items }: { items: Sucursal[] }) {
+/**
+ * Tarjetas de sucursales, con el mismo markup original pero desde la base.
+ * `whatsappGeneral` es el número de la pestaña Textos: se usa cuando la
+ * sucursal no tiene uno propio, así el botón siempre es "Escribinos".
+ */
+export default function SucursalesGrid({
+  items,
+  whatsappGeneral = "",
+}: {
+  items: Sucursal[];
+  whatsappGeneral?: string;
+}) {
   if (items.length === 0) return null;
 
   return (
@@ -22,14 +32,16 @@ export default function SucursalesGrid({ items }: { items: Sucursal[] }) {
       {items.map((s) => {
         const tel = (s.telefono ?? "").replace(/[^\d+]/g, "");
 
-        // WhatsApp: solo dígitos, con mensaje listo para enviar.
-        const wa = (s.whatsapp ?? "").replace(/\D/g, "");
+        // WhatsApp: el de la sucursal, y si no tiene, el general del sitio.
+        const wa = ((s.whatsapp || whatsappGeneral) ?? "").replace(/\D/g, "");
         const mensaje = encodeURIComponent(
           `¡Hola! Quiero hacer un pedido en ${s.nombre}.`
         );
         const linkWa = wa ? `https://wa.me/${wa}?text=${mensaje}` : null;
 
-        const mapa = s.mapa_query || s.direccion || "Las Luigi Pizzas";
+        // El mini mapa sale de la dirección: los links cortos de Google
+        // (maps.app.goo.gl) no se pueden incrustar en un iframe.
+        const mapa = s.direccion || s.mapa_query || "Las Luigi Pizzas";
         const comoLlegar =
           s.maps_url ||
           `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapa)}`;

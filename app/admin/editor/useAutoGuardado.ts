@@ -1,13 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export type EstadoGuardado = "quieto" | "escribiendo" | "guardando" | "guardado";
 
 /**
  * Guarda el formulario solo, poco después de que dejás de escribir.
- * Devuelve el estado para mostrarle al usuario qué está pasando, así no
- * queda la duda de si el cambio se guardó o no.
+ * Devuelve el estado para mostrarle al usuario qué está pasando.
+ *
+ * El objeto que devuelve es estable (useMemo): si cambiara en cada render y
+ * alguien lo usara como dependencia de un efecto, se armaría un bucle de
+ * guardar -> refrescar -> re-render -> guardar.
  */
 export function useAutoGuardado({
   activo = true,
@@ -17,7 +20,6 @@ export function useAutoGuardado({
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [estado, setEstado] = useState<EstadoGuardado>("quieto");
 
-  // Limpiamos el temporizador si el componente se desmonta a mitad de camino.
   useEffect(() => {
     return () => {
       if (temporizador.current) clearTimeout(temporizador.current);
@@ -34,7 +36,7 @@ export function useAutoGuardado({
     }, retraso);
   }, [activo, retraso]);
 
-  /** Guarda ya mismo, sin esperar (para checkboxes y selects). */
+  /** Guarda ya mismo, sin esperar (para checkboxes y archivos). */
   const guardarYa = useCallback(() => {
     if (!activo) return;
     if (temporizador.current) clearTimeout(temporizador.current);
@@ -44,7 +46,10 @@ export function useAutoGuardado({
 
   const marcarGuardado = useCallback(() => setEstado("guardado"), []);
 
-  return { formRef, estado, alCambiar, guardarYa, marcarGuardado };
+  return useMemo(
+    () => ({ formRef, estado, alCambiar, guardarYa, marcarGuardado }),
+    [estado, alCambiar, guardarYa, marcarGuardado]
+  );
 }
 
 /** Texto corto para mostrar al lado del formulario. */
@@ -59,4 +64,22 @@ export function textoEstado(estado: EstadoGuardado): string {
     default:
       return "";
   }
+}
+
+/**
+ * Ejecuta algo UNA sola vez por cada resultado nuevo de un Server Action.
+ * Compara identidad del objeto: useActionState devuelve uno nuevo por
+ * invocación, así que sirve para no reaccionar de más en cada render.
+ */
+export function useResultadoNuevo<T>(resultado: T, alRecibir: (r: T) => void) {
+  const anterior = useRef(resultado);
+  const callback = useRef(alRecibir);
+  callback.current = alRecibir;
+
+  useEffect(() => {
+    if (resultado !== anterior.current) {
+      anterior.current = resultado;
+      callback.current(resultado);
+    }
+  }, [resultado]);
 }

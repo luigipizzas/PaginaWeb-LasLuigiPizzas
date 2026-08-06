@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 import { guardarTextos, type Resultado } from "./actions";
-import { useAutoGuardado, textoEstado } from "./useAutoGuardado";
+import { useAutoGuardado, textoEstado, useResultadoNuevo } from "./useAutoGuardado";
 import styles from "./editor.module.css";
 
 /** Qué textos de la landing se pueden editar, agrupados por sección. */
@@ -54,12 +54,12 @@ export default function PanelTextos({
   );
   const auto = useAutoGuardado();
 
-  useEffect(() => {
-    if (estado.ok) {
+  useResultadoNuevo(estado, (res) => {
+    if (res.ok) {
       auto.marcarGuardado();
       onGuardado?.();
     }
-  }, [estado.ok, onGuardado, auto]);
+  });
 
   return (
     <form ref={auto.formRef} action={accion} className={styles.formTextos}>

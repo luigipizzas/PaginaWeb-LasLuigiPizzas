@@ -4,7 +4,7 @@ import { useState, useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import type { Sucursal } from "@/lib/tipos";
 import { guardarSucursal, borrarSucursal, type Resultado } from "./actions";
-import { useAutoGuardado, textoEstado } from "./useAutoGuardado";
+import { useAutoGuardado, textoEstado, useResultadoNuevo } from "./useAutoGuardado";
 import Reordenar from "./Reordenar";
 import styles from "./editor.module.css";
 
@@ -46,13 +46,15 @@ export default function FichaSucursal({
   // Las fichas ya existentes se guardan solas; las nuevas necesitan el botón.
   const auto = useAutoGuardado({ activo: !esNuevo });
 
-  useEffect(() => {
-    if (estado.ok) {
+  useResultadoNuevo(estado, (res) => {
+    if (res.ok) {
       auto.marcarGuardado();
       onGuardado?.();
     }
-    if (estadoBorrar.ok) onGuardado?.();
-  }, [estado.ok, estadoBorrar.ok, onGuardado, auto]);
+  });
+  useResultadoNuevo(estadoBorrar, (res) => {
+    if (res.ok) onGuardado?.();
+  });
 
   if (!abierta) {
     return (
@@ -126,8 +128,12 @@ export default function FichaSucursal({
             name="direccion"
             defaultValue={sucursal.direccion ?? ""}
             onInput={auto.alCambiar}
-            placeholder="Av. San Martín 1234"
+            placeholder="Av. San Martín 1234, Mendoza"
           />
+          <small className={styles.pista}>
+            Se muestra en la tarjeta y es <strong>la que dibuja el mini mapa</strong>.
+            Poné la dirección completa (con ciudad) para que lo ubique bien.
+          </small>
         </label>
 
         <label className={styles.campo}>
@@ -142,7 +148,7 @@ export default function FichaSucursal({
         </label>
 
         <label className={styles.campo}>
-          <span className={styles.etiqueta}>WhatsApp — botón principal</span>
+          <span className={styles.etiqueta}>WhatsApp — botón “Escribinos”</span>
           <input
             className={styles.input}
             name="whatsapp"
@@ -151,8 +157,9 @@ export default function FichaSucursal({
             placeholder="5492611234567"
           />
           <small className={styles.pista}>
-            Con código de país y sin espacios ni signos. Si lo cargás, la tarjeta
-            muestra el botón <strong>Escribinos</strong> que abre el chat.
+            Con código de país y sin espacios ni signos: para Mendoza empieza con
+            <strong> 549261…</strong>. Si lo dejás vacío, se usa el WhatsApp
+            general de la pestaña <strong>Textos</strong>.
           </small>
         </label>
 
@@ -165,14 +172,11 @@ export default function FichaSucursal({
             onInput={auto.alCambiar}
             placeholder="+54 9 261 123 4567"
           />
-          <small className={styles.pista}>
-            Se muestra en la tarjeta. Si no cargaste WhatsApp, el botón pasa a ser
-            “Llamar”.
-          </small>
+          <small className={styles.pista}>Solo se muestra en la tarjeta.</small>
         </label>
 
         <label className={styles.campo}>
-          <span className={styles.etiqueta}>Link de Google Maps</span>
+          <span className={styles.etiqueta}>Link de Google Maps (opcional)</span>
           <input
             className={styles.input}
             name="maps_url"
@@ -181,23 +185,9 @@ export default function FichaSucursal({
             placeholder="https://maps.app.goo.gl/..."
           />
           <small className={styles.pista}>
-            Pegá acá el link que te da Google Maps al tocar “Compartir”. Es el que
-            abre el botón <strong>Cómo llegar</strong>. Si lo dejás vacío, se arma
-            solo con la dirección de abajo.
-          </small>
-        </label>
-
-        <label className={styles.campo}>
-          <span className={styles.etiqueta}>Dirección del mapa que se ve</span>
-          <input
-            className={styles.input}
-            name="mapa_query"
-            defaultValue={sucursal.mapa_query ?? ""}
-            onInput={auto.alCambiar}
-            placeholder="Av. San Martín 1234, Mendoza, Argentina"
-          />
-          <small className={styles.pista}>
-            Dirección completa para el mapa que aparece dentro de la tarjeta.
+            Solo cambia a dónde lleva el botón <strong>Cómo llegar</strong>. El
+            mini mapa de la tarjeta siempre sale de la dirección, porque los links
+            cortos de Google no se pueden incrustar.
           </small>
         </label>
 

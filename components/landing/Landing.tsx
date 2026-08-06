@@ -186,7 +186,7 @@ export default function Landing({
           </a>
 
           {/* Las sucursales se cargan y editan desde el panel (/admin/editor) */}
-          <SucursalesGrid items={sucursales} />
+          <SucursalesGrid items={sucursales} whatsappGeneral={textos.contacto?.whatsapp ?? ""} />
         </div>
       </section>
 

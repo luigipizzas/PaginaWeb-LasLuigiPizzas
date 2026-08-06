@@ -4,7 +4,7 @@ import { useState, useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import type { Reel } from "@/lib/tipos";
 import { guardarReel, borrarReel, type Resultado } from "./actions";
-import { useAutoGuardado, textoEstado } from "./useAutoGuardado";
+import { useAutoGuardado, textoEstado, useResultadoNuevo } from "./useAutoGuardado";
 import SubirArchivo from "./SubirArchivo";
 import Reordenar from "./Reordenar";
 import styles from "./editor.module.css";
@@ -45,13 +45,15 @@ export default function FichaReel({
 
   const auto = useAutoGuardado({ activo: !esNuevo });
 
-  useEffect(() => {
-    if (estado.ok) {
+  useResultadoNuevo(estado, (res) => {
+    if (res.ok) {
       auto.marcarGuardado();
       onGuardado?.();
     }
-    if (estadoBorrar.ok) onGuardado?.();
-  }, [estado.ok, estadoBorrar.ok, onGuardado, auto]);
+  });
+  useResultadoNuevo(estadoBorrar, (res) => {
+    if (res.ok) onGuardado?.();
+  });
 
   // Igual que en productos: el guardado se dispara desde un efecto para que
   // React ya haya escrito la URL nueva en el campo oculto.
