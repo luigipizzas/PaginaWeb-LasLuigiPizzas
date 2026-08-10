@@ -27,10 +27,45 @@ const mono = Space_Mono({
   variable: "--font-mono",
 });
 
+const TITULO = "Las Luigi Pizzas — Pizzas · Lomos · Hamburguesas · Empanadas";
+const DESCRIPCION =
+  "Pizzas a la piedra, lomos, hamburguesas y empanadas. Amasado a mano, horno a la piedra y envíos en el barrio.";
+
+// Para que la miniatura al compartir funcione, la URL de la imagen tiene que
+// ser absoluta. Se toma del dominio configurado; en Vercel alcanza con la
+// variable que la plataforma inyecta sola.
+const SITIO =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "https://lasluigipizzas.vercel.app");
+
 export const metadata: Metadata = {
-  title: "Las Luigi Pizzas — Pizzas · Lomos · Hamburguesas · Empanadas",
-  description:
-    "Pizzas a la piedra, lomos, hamburguesas y empanadas. Amasado a mano, horno a la piedra y envíos en el barrio.",
+  metadataBase: new URL(SITIO),
+  title: TITULO,
+  description: DESCRIPCION,
+  openGraph: {
+    type: "website",
+    siteName: "Las Luigi Pizzas",
+    locale: "es_AR",
+    url: SITIO,
+    title: TITULO,
+    description: DESCRIPCION,
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Las Luigi Pizzas — Eyyy! ¿Vos querés?",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITULO,
+    description: DESCRIPCION,
+    images: ["/og.jpg"],
+  },
 };
 
 export default function RootLayout({
