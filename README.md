@@ -78,6 +78,19 @@ El acceso está cerrado en tres capas independientes:
 
 El cambio de correo y contraseña exige confirmar la contraseña actual.
 
+## Mantener despierta la base
+
+Supabase pausa los proyectos del plan gratuito que pasan una semana sin
+actividad. Para evitarlo, Vercel llama todos los días a `/api/mantener-viva`
+(configurado en `vercel.json`), que hace una consulta mínima a la base.
+
+La consulta sale desde la aplicación y no desde un `pg_cron` dentro de Postgres
+a propósito: lo que Supabase cuenta como actividad son las llamadas a la API del
+proyecto, y un trabajo interno de la base no las genera.
+
+Si el proyecto pasa a un plan pago, el cron deja de ser necesario y se puede
+borrar la entrada de `vercel.json`.
+
 ## Publicar
 
 El sitio se despliega en Vercel conectando este repositorio. Cada push a `main`
