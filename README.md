@@ -81,15 +81,37 @@ El cambio de correo y contraseña exige confirmar la contraseña actual.
 ## Mantener despierta la base
 
 Supabase pausa los proyectos del plan gratuito que pasan una semana sin
-actividad. Para evitarlo, Vercel llama todos los días a `/api/mantener-viva`
-(configurado en `vercel.json`), que hace una consulta mínima a la base.
+actividad. Para evitarlo hay una tarea programada **dentro de Supabase** que,
+tres veces por día, le pega por HTTP a `/api/mantener-viva`. Ese endpoint hace
+una consulta mínima a la base (sólo el conteo, sin traer filas).
 
-La consulta sale desde la aplicación y no desde un `pg_cron` dentro de Postgres
-a propósito: lo que Supabase cuenta como actividad son las llamadas a la API del
-proyecto, y un trabajo interno de la base no las genera.
+El rebote es intencional. Lo que Supabase cuenta como actividad son las llamadas
+a la API del proyecto: un `pg_cron` que consultara las tablas directamente se
+ejecutaría igual, pero **no evitaría la pausa**. Al pasar por el sitio, la
+consulta entra por la API y sí queda registrada.
 
-Si el proyecto pasa a un plan pago, el cron deja de ser necesario y se puede
-borrar la entrada de `vercel.json`.
+Todo vive en la base (extensiones `pg_cron` y `pg_net`), así que no depende del
+plan de Vercel.
+
+### Cambiar el dominio o la frecuencia
+
+```sql
+select cron.schedule(
+  'mantener-viva',
+  '0 */8 * * *',
+  $$ select net.http_get(url := 'https://TU-DOMINIO/api/mantener-viva'); $$
+);
+```
+
+Usar el mismo nombre reemplaza la tarea. Para ver el estado:
+
+```sql
+select * from cron.job;                                  -- tareas programadas
+select * from cron.job_run_details order by start_time desc limit 10;  -- ejecuciones
+```
+
+Si el proyecto pasa a un plan pago, la tarea deja de ser necesaria:
+`select cron.unschedule('mantener-viva');`
 
 ## Publicar
 
