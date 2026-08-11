@@ -31,14 +31,37 @@ const TITULO = "Las Luigi Pizzas — Pizzas · Lomos · Hamburguesas · Empanada
 const DESCRIPCION =
   "Pizzas a la piedra, lomos, hamburguesas y empanadas. Amasado a mano, horno a la piedra y envíos en el barrio.";
 
-// Para que la miniatura al compartir funcione, la URL de la imagen tiene que
-// ser absoluta. Se toma del dominio configurado; en Vercel alcanza con la
-// variable que la plataforma inyecta sola.
-const SITIO =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "https://lasluigipizzas.vercel.app");
+const SITIO_POR_DEFECTO = "https://lasluigipizzas.vercel.app";
+
+/**
+ * Arma la URL del sitio tolerando cómo suele cargarse la variable.
+ *
+ * Es a prueba de errores a propósito: si el dominio viene sin protocolo
+ * (por ejemplo "misitio.com", que es lo natural al copiarlo del panel de
+ * Vercel), `new URL()` lanza una excepción y, al ejecutarse en el layout,
+ * tira abajo la compilación entera. No vale la pena romper el build por eso.
+ */
+function resolverSitio(): string {
+  const candidatos = [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    SITIO_POR_DEFECTO,
+  ];
+
+  for (const bruto of candidatos) {
+    const valor = bruto?.trim();
+    if (!valor) continue;
+    const conProtocolo = /^https?:\/\//i.test(valor) ? valor : `https://${valor}`;
+    try {
+      return new URL(conProtocolo).origin;
+    } catch {
+      // Valor inservible: probamos con el siguiente.
+    }
+  }
+  return SITIO_POR_DEFECTO;
+}
+
+const SITIO = resolverSitio();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITIO),
