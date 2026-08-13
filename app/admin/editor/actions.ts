@@ -274,36 +274,3 @@ export async function guardarTextos(
     return { error: e instanceof Error ? e.message : "Algo salió mal." };
   }
 }
-
-/* ============================ IMÁGENES ============================ */
-
-export async function subirImagen(formData: FormData): Promise<Resultado & { url?: string }> {
-  try {
-    const supabase = await exigirAdmin();
-    const archivo = formData.get("archivo") as File | null;
-
-    if (!archivo || archivo.size === 0) return { error: "Elegí una imagen." };
-    if (!archivo.type.startsWith("image/") && !archivo.type.startsWith("video/")) {
-      return { error: "El archivo tiene que ser una imagen o un video." };
-    }
-    if (archivo.size > 50 * 1024 * 1024) {
-      return { error: "El archivo no puede pesar más de 50 MB." };
-    }
-
-    const ext = archivo.name.split(".").pop()?.toLowerCase() ?? "jpg";
-    const nombre = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-    const { error } = await supabase.storage
-      .from("media")
-      .upload(nombre, archivo, { cacheControl: "3600", upsert: false });
-
-    if (error) return { error: "No pudimos subir el archivo." };
-
-    const { data } = supabase.storage.from("media").getPublicUrl(nombre);
-
-    refrescarSitio();
-    return { ok: "Archivo subido.", url: data.publicUrl };
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Algo salió mal." };
-  }
-}
