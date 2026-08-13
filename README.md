@@ -54,6 +54,15 @@ legacy/               La landing original en HTML, como referencia
 proxy.ts              Refresca la sesión y protege /admin
 ```
 
+## Instalar la base desde cero
+
+En un proyecto de Supabase nuevo, pegá `supabase/instalacion.sql` en el SQL
+Editor y ejecutalo. Deja listas las tablas, la seguridad, el bucket de
+archivos, el usuario del panel y la tarea que evita la pausa por inactividad.
+
+Antes de correrlo revisá el bloque **CONFIGURACIÓN** del principio (correo,
+contraseña y dominio). Se puede volver a ejecutar sin duplicar datos.
+
 ## Base de datos
 
 | Tabla | Contenido |
