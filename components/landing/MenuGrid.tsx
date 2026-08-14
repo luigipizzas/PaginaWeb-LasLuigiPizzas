@@ -1,4 +1,5 @@
 import type { Producto } from "@/lib/tipos";
+import BotonAgregar from "@/components/carrito/BotonAgregar";
 
 /** Grilla del menú. Mismo markup que la landing original, pero con datos de Supabase. */
 export default function MenuGrid({ productos }: { productos: Producto[] }) {
@@ -25,20 +26,7 @@ export default function MenuGrid({ productos }: { productos: Producto[] }) {
             <p className="card-desc">{p.description}</p>
             <div className="card-foot">
               <span className="card-price">{p.price}</span>
-              <button
-                className="card-add"
-                aria-label={`Agregar ${p.name} al pedido`}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </button>
+              <BotonAgregar id={p.id} nombre={p.name} precio={p.price} />
             </div>
           </div>
         </article>

@@ -160,20 +160,46 @@ section[id],header[id]{scroll-margin-top:84px}
 }
 /* En celulares la imagen es baja: compactamos y subimos los botones para que
    los dos entren debajo del texto, sin pisar la pizza ni salirse de la imagen. */
-@media(max-width:600px){
-  /* Botones dimensionados en vw: escalan junto con la imagen, así entran los dos
-     debajo del texto en cualquier celular (angosto o ancho) sin recortarse. */
-  /* Una sola fila: si se parten en dos, se salen por debajo de la imagen
-     (en celular la foto mide apenas ~56% del ancho de alto). */
-  .hero-actions{top:72%;gap:1.6vw;max-width:62%;flex-wrap:nowrap}
+/* ---------- HERO EN CELULAR ----------
+   El hero, los cuadros y el marquee entran juntos en una sola pantalla.
+   El bloque mide 100svh y el hero toma lo que sobra, así no hay que
+   hardcodear cuánto miden los cuadros ni el marquee. */
+@media(max-width:700px){
+  .hero-bloque{
+    height:100svh;
+    display:flex;
+    flex-direction:column;
+  }
+  .hero{flex:1 1 auto;min-height:0}
+  .checkers,.marquee{flex:none}
+
+  .hero-media{height:100%}
+  /* La foto vertical llena el alto; recorta unos pocos px a los costados. */
+  .hero-media picture{display:block;height:100%}
+  .hero-img{height:100%;object-fit:cover;object-position:center}
+
+  /* Los botones van en la franja roja libre entre el texto y la pizza. */
+  .hero-actions{
+    top:34%;
+    left:50%;
+    transform:translateX(-50%);
+    max-width:92%;
+    width:max-content;
+    justify-content:center;
+    flex-wrap:nowrap;
+    gap:9px;
+  }
   .hero-actions .btn{
-    font-size:clamp(9px,2.9vw,13px);
-    padding:1.7vw 2.7vw 1.3vw;
-    border-width:2px;box-shadow:2px 2px 0 var(--char);
+    font-size:clamp(11px,3.4vw,15px);
+    padding:10px 16px 8px;
+    border-width:2px;
+    box-shadow:3px 3px 0 var(--char);
     white-space:nowrap;
   }
-  /* Sin iconos en celular: liberan el ancho justo para que entren los dos. */
-  .hero-actions .btn svg{display:none}
+  .hero-actions .btn svg{width:14px;height:14px}
+}
+@supports not (height:100svh){
+  @media(max-width:700px){ .hero-bloque{height:100vh} }
 }
 /* Solo en pantallas MÁS anchas que la imagen (ultra-wide) la foto se estiraría
    más alta que la pantalla: ahí sí la recortamos con cover para que llene el
@@ -552,4 +578,139 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
   /* El flotante no va en papel; y el botón real vuelve a verse. */
   .wa-fab{ display:none !important }
   .is-replaced{ visibility:visible !important }
+}
+
+/* ============================ CARRITO ============================ */
+
+/* Botón flotante con el resumen. Va a la izquierda para no chocar con
+   el de WhatsApp, que vive a la derecha. */
+.carrito-fab{
+  position:fixed;left:18px;bottom:18px;z-index:120;
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--char);color:var(--cream);
+  border:3px solid var(--char);border-radius:40px;
+  padding:10px 18px 10px 12px;cursor:pointer;
+  font-family:var(--font-luckiest),cursive;font-size:16px;letter-spacing:.03em;
+  box-shadow:4px 4px 0 rgba(28,20,12,.35);
+  transition:transform .15s, box-shadow .15s;
+}
+.carrito-fab:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(28,20,12,.35)}
+.carrito-fab-ico{position:relative;display:inline-flex}
+.carrito-fab-ico svg{width:26px;height:26px}
+.carrito-burbuja{
+  position:absolute;top:-7px;right:-9px;
+  min-width:19px;height:19px;padding:0 5px;border-radius:20px;
+  background:var(--green);color:var(--char);
+  font-family:var(--font-mono),monospace;font-size:11px;font-weight:700;
+  display:grid;place-items:center;border:2px solid var(--char);
+}
+
+.carrito-fondo{position:fixed;inset:0;z-index:130;background:rgba(28,20,12,.55)}
+
+.carrito-panel{
+  position:fixed;z-index:131;left:16px;right:16px;bottom:16px;
+  max-width:430px;max-height:82vh;overflow-y:auto;
+  background:var(--cream);border:3px solid var(--char);border-radius:20px;
+  box-shadow:8px 8px 0 rgba(28,20,12,.4);padding:18px;
+  display:flex;flex-direction:column;gap:14px;
+}
+@media(min-width:700px){ .carrito-panel{right:auto;bottom:24px;left:24px} }
+
+.carrito-cabecera{display:flex;align-items:center;justify-content:space-between}
+.carrito-cabecera h3{
+  font-family:var(--font-luckiest),cursive;text-transform:uppercase;
+  font-size:23px;color:var(--char);
+}
+.carrito-cerrar{
+  background:transparent;border:0;font-size:20px;line-height:1;cursor:pointer;
+  color:var(--char);padding:4px 6px;
+}
+
+.carrito-items{display:flex;flex-direction:column;gap:10px}
+.carrito-item{
+  display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;
+  background:#fff;border:2px solid var(--char);border-radius:12px;padding:9px 11px;
+}
+.carrito-item-datos{display:flex;flex-direction:column;gap:2px;min-width:0}
+.carrito-item-datos strong{font-size:14.5px;color:var(--char)}
+.carrito-item-datos span{font-size:12px;color:var(--ink);opacity:.7}
+
+.carrito-cantidad{display:inline-flex;align-items:center;gap:6px}
+.carrito-cantidad button{
+  width:27px;height:27px;border-radius:50%;
+  border:2px solid var(--char);background:var(--cream);
+  font-size:15px;line-height:1;cursor:pointer;color:var(--char);
+}
+.carrito-cantidad button:hover{background:var(--green)}
+.carrito-cantidad span{
+  min-width:20px;text-align:center;
+  font-family:var(--font-mono),monospace;font-weight:700;font-size:14px;
+}
+
+.carrito-subtotal{
+  display:flex;flex-direction:column;align-items:flex-end;gap:2px;
+  font-family:var(--font-mono),monospace;font-weight:700;font-size:14px;color:var(--red-deep);
+}
+.carrito-borrar{
+  background:none;border:0;padding:0;cursor:pointer;
+  font-size:11px;color:var(--red);text-decoration:underline;font-family:inherit;
+}
+
+.carrito-campo{display:flex;flex-direction:column;gap:5px}
+.carrito-campo span{
+  font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink);opacity:.72;
+}
+.carrito-campo input{
+  border:2px solid var(--char);border-radius:10px;padding:10px 12px;
+  font-size:15px;font-family:inherit;background:#fff;color:var(--char);
+}
+.carrito-campo input:focus{outline:3px solid var(--green);outline-offset:1px}
+
+.carrito-total{
+  display:flex;align-items:baseline;justify-content:space-between;
+  border-top:2px dashed var(--char);padding-top:12px;
+}
+.carrito-total span{
+  font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.7;
+}
+.carrito-total strong{
+  font-family:var(--font-mono),monospace;font-size:25px;color:var(--red-deep);
+}
+
+.carrito-pedir{width:100%;justify-content:center;background:var(--green);color:var(--char)}
+.carrito-vaciar{
+  background:none;border:0;cursor:pointer;font-family:inherit;
+  font-size:12.5px;color:var(--ink);opacity:.62;text-decoration:underline;
+}
+
+/* El "+" salta un instante al agregar, para que se note que sumó */
+.card-add.agregado{animation:carritoSalto .35s ease}
+@keyframes carritoSalto{
+  0%{transform:scale(1)} 45%{transform:scale(1.35) rotate(90deg)} 100%{transform:scale(1)}
+}
+
+/* Aviso flotante al mandar a elegir sucursal */
+.aviso-flotante{
+  position:fixed;z-index:140;left:50%;transform:translateX(-50%);
+  top:calc(68px + 12px);
+  display:inline-flex;align-items:center;gap:9px;
+  max-width:min(92vw,460px);
+  background:var(--char);color:var(--cream);
+  border:3px solid var(--green);border-radius:40px;
+  padding:11px 18px;font-size:14px;line-height:1.35;font-weight:500;
+  box-shadow:0 8px 24px rgba(28,20,12,.35);
+  animation:avisoEntra .35s ease;
+}
+.aviso-flotante svg{width:19px;height:19px;flex:none;color:var(--green)}
+@keyframes avisoEntra{from{opacity:0;transform:translate(-50%,-14px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* Sucursal lista para recibir el pedido */
+.suc-actions .pedir-listo{background:var(--green);color:var(--char)}
+.suc-actions .pedir-listo svg{width:17px;height:17px}
+
+@media(max-width:600px){
+  .carrito-fab{left:12px;bottom:12px;padding:8px 14px 8px 10px;font-size:14px}
+  .carrito-fab-ico svg{width:22px;height:22px}
+  .aviso-flotante{font-size:13px;padding:10px 15px;top:calc(60px + 10px)}
 }

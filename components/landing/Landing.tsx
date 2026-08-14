@@ -3,6 +3,9 @@ import MenuGrid from "./MenuGrid";
 import ReelsGrid from "./ReelsGrid";
 import SucursalesGrid from "./SucursalesGrid";
 import Animaciones from "./Animaciones";
+import { CarritoProvider } from "@/components/carrito/CarritoContext";
+import PanelCarrito from "@/components/carrito/PanelCarrito";
+import BotonWhatsAppFlotante from "@/components/carrito/BotonWhatsAppFlotante";
 
 /**
  * Landing de Las Luigi Pizzas.
@@ -29,7 +32,7 @@ export default function Landing({
   }`;
 
   return (
-    <>
+    <CarritoProvider>
       {/* ===== SVG SPRITES (brand mark reused) ===== */}
       <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
         <symbol id="ic-slice" viewBox="0 0 48 48">
@@ -69,27 +72,37 @@ export default function Landing({
         </a>
       </div>
 
-      {/* HERO */}
-      <header className="hero">
-        <div className="hero-media">
-          <img className="hero-img" src="/IMG_3119.JPEG" alt="Las Luigi Pizzas — Eyyy! ¿Vos querés?" />
-          <div className="hero-actions">
-            <a className="btn green" href="#local">Pedí ahora
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-            </a>
-            <a className="btn ghost" href="#menu">Ver el menú
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10" /></svg>
-            </a>
+      {/* HERO + cuadros + marquee.
+          En celular los tres juntos ocupan exactamente una pantalla: el bloque
+          mide 100svh y el hero se estira con lo que sobra, así no hay que
+          hardcodear las alturas de los cuadros ni del marquee. */}
+      <div className="hero-bloque">
+        <header className="hero">
+          <div className="hero-media">
+            <picture>
+              {/* En celular va una foto vertical propia: la apaisada, recortada
+                  a pantalla de teléfono, perdía el texto o la pizza. */}
+              <source media="(max-width: 700px)" srcSet="/heroMOBILE.jpg" />
+              <img className="hero-img" src="/IMG_3119.JPEG" alt="Las Luigi Pizzas — Eyyy! ¿Vos querés?" />
+            </picture>
+            <div className="hero-actions">
+              <a className="btn green" href="#menu">Ver el menú
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10" /></svg>
+              </a>
+              <a className="btn ghost" href="#local">Pedí ahora
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </a>
+            </div>
           </div>
-        </div>
-      </header>
-      <div className="checkers"></div>
+        </header>
+        <div className="checkers"></div>
 
-      {/* MARQUEE */}
-      <div className="marquee" aria-hidden="true">
-        <div className="marquee-track" id="marquee">
-          <span>MUZZARELLA</span><span>LOMO LUIGI</span><span>HAMBURGUESAS</span><span>EMPANADAS</span><span>FUGAZZETTA</span><span>A LA PIEDRA</span><span>ENVÍOS</span>
-          <span>MUZZARELLA</span><span>LOMO LUIGI</span><span>HAMBURGUESAS</span><span>EMPANADAS</span><span>FUGAZZETTA</span><span>A LA PIEDRA</span><span>ENVÍOS</span>
+        {/* MARQUEE */}
+        <div className="marquee" aria-hidden="true">
+          <div className="marquee-track" id="marquee">
+            <span>MUZZARELLA</span><span>LOMO LUIGI</span><span>HAMBURGUESAS</span><span>EMPANADAS</span><span>FUGAZZETTA</span><span>A LA PIEDRA</span><span>ENVÍOS</span>
+            <span>MUZZARELLA</span><span>LOMO LUIGI</span><span>HAMBURGUESAS</span><span>EMPANADAS</span><span>FUGAZZETTA</span><span>A LA PIEDRA</span><span>ENVÍOS</span>
+          </div>
         </div>
       </div>
 
@@ -222,16 +235,9 @@ export default function Landing({
       </footer>
 
       {/* BOTÓN FLOTANTE WHATSAPP (se transforma en el CTA al llegar a "¿Te dio hambre?") */}
-      <a className="wa-fab" id="waFab" href={linkWa} aria-label="Hacé tu pedido por WhatsApp">
-        <span className="wa-fab-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2a10 10 0 0 0-8.6 15.06L2 22l5.06-1.35A10 10 0 1 0 12 2Zm0 18.2a8.17 8.17 0 0 1-4.16-1.14l-.3-.18-3.08.82.82-3-.19-.31A8.2 8.2 0 1 1 12 20.2Z" />
-            <path d="M16.9 14.2c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.13-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.18-1.34-.8-.72-1.35-1.6-1.51-1.87-.16-.27-.02-.42.12-.55.12-.12.27-.32.4-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.01-.22-.53-.44-.46-.61-.46h-.52c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.26s.98 2.62 1.11 2.8c.14.18 1.9 2.9 4.6 4.07.64.28 1.15.44 1.54.57.65.2 1.24.18 1.7.11.52-.08 1.6-.65 1.83-1.29.23-.63.23-1.17.16-1.29-.07-.11-.25-.18-.52-.32Z" />
-          </svg>
-        </span>
-        <span className="wa-fab-text">{txt("cta","boton")}</span>
-      </a>
+      <BotonWhatsAppFlotante texto={txt("cta","boton")} />
       <Animaciones />
-    </>
+      <PanelCarrito />
+    </CarritoProvider>
   );
 }

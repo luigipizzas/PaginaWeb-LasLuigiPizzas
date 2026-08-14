@@ -103,6 +103,8 @@ export default function Animaciones() {
       /* ===================== LENIS (scroll suave) ===================== */
       if(!reduce && Lenis){
         const lenis = new Lenis({ lerp:0.09, smoothWheel:true, wheelMultiplier:1 });
+        // Lo dejamos accesible para que el carrito pueda desplazar suave.
+        window.lenis = lenis;
         // Lo movemos con el ticker de GSAP para que quede sincronizado con ScrollTrigger
         lenis.on('scroll', ScrollTrigger.update);
         gsap.ticker.add(t => lenis.raf(t * 1000));
