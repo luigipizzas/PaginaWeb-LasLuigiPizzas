@@ -6,6 +6,7 @@ import Animaciones from "./Animaciones";
 import { CarritoProvider } from "@/components/carrito/CarritoContext";
 import PanelCarrito from "@/components/carrito/PanelCarrito";
 import BotonWhatsAppFlotante from "@/components/carrito/BotonWhatsAppFlotante";
+import BotonPedidoCTA from "@/components/carrito/BotonPedidoCTA";
 
 /**
  * Landing de Las Luigi Pizzas.
@@ -25,8 +26,8 @@ export default function Landing({
   // Devuelve el texto editable; si todavía no se cargó, no rompe nada.
   const txt = (seccion: string, campo: string) => textos[seccion]?.[campo] ?? "";
 
-  const wa = (textos.contacto?.whatsapp ?? "").replace(/\D/g, "");
-  const linkWa = wa ? `https://wa.me/${wa}` : "#local";
+  // El WhatsApp ya no arma un link directo acá: los botones llevan a elegir
+  // sucursal y cada una manda el pedido a su propio número.
   const linkIg = `https://www.instagram.com/${
     textos.contacto?.instagram ?? "lasluigipizzas"
   }`;
@@ -194,9 +195,7 @@ export default function Landing({
           <span className="script">¿Te dio hambre?</span>
           <h2 className="reveal">{txt("cta","titulo")}</h2>
           <p className="reveal">{txt("cta","texto")}</p>
-          <a className="btn reveal" id="waTarget" href={linkWa}>{txt("cta","boton")}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-          </a>
+          <BotonPedidoCTA texto={txt("cta","boton")} />
 
           {/* Las sucursales se cargan y editan desde el panel (/admin/editor) */}
           <SucursalesGrid items={sucursales} whatsappGeneral={textos.contacto?.whatsapp ?? ""} />

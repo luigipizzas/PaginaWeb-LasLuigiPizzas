@@ -256,9 +256,8 @@ export default function Animaciones() {
       const text = fab.querySelector('.wa-fab-text');
       const ico  = fab.querySelector('.wa-fab-ico');
 
-      // El flotante usa el mismo link que el botón real
-      const href = target.getAttribute('href');
-      if(href) fab.setAttribute('href', href);
+      // Antes se le copiaba el href del botón real. Ya no: el flotante es un
+      // <button> manejado por React que lleva a elegir sucursal.
 
       const M = 24, R = 62;                                  // margen y diámetro del círculo
       const rest = ()=>({w:R, h:R, l:innerWidth-R-M, t:innerHeight-R-M});
