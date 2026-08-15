@@ -3,6 +3,7 @@ import MenuGrid from "./MenuGrid";
 import ReelsGrid from "./ReelsGrid";
 import SucursalesGrid from "./SucursalesGrid";
 import Animaciones from "./Animaciones";
+import Cargando from "./Cargando";
 import { CarritoProvider } from "@/components/carrito/CarritoContext";
 import PanelCarrito from "@/components/carrito/PanelCarrito";
 import BotonWhatsAppFlotante from "@/components/carrito/BotonWhatsAppFlotante";
@@ -34,6 +35,7 @@ export default function Landing({
 
   return (
     <CarritoProvider>
+      <Cargando />
       {/* ===== SVG SPRITES (brand mark reused) ===== */}
       <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
         <symbol id="ic-slice" viewBox="0 0 48 48">

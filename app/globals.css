@@ -118,10 +118,22 @@ section[id],header[id]{scroll-margin-top:84px}
   display:none;position:fixed;inset:68px 0 auto 0;z-index:99;
   background:var(--paper);border-bottom:3px solid var(--char);
   padding:18px clamp(18px,4vw,28px) 26px;
-  transform:translateY(-120%);transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  /* Antes era translateY(-120%), y ese 20% de sobra tenía que cubrir además
+     los 68px que el menú arranca más abajo. Con el menú cerrado quedaba a
+     apenas unos píxeles del borde: si las fuentes renderizaban un poco más
+     grandes, asomaba su parte de abajo (el botón "Pedí ahora") arriba de todo.
+     Descontando el alto propio MÁS el desplazamiento, el margen ya no depende
+     de cuánto mida el menú. */
+  transform:translateY(calc(-100% - 80px));
+  visibility:hidden;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1), visibility 0s linear .35s;
   box-shadow:0 20px 40px rgba(28,20,12,.2);
 }
-.mobile-menu.open{transform:translateY(0)}
+.mobile-menu.open{
+  transform:translateY(0);
+  visibility:visible;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1), visibility 0s;
+}
 .mobile-menu a{
   display:block;font-family:var(--font-luckiest),cursive;font-size:26px;color:var(--char);
   padding:10px 0;border-bottom:2px solid rgba(28,20,12,.08);letter-spacing:.02em;
@@ -713,4 +725,55 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
   .carrito-fab{left:12px;bottom:12px;padding:8px 14px 8px 10px;font-size:14px}
   .carrito-fab-ico svg{width:22px;height:22px}
   .aviso-flotante{font-size:13px;padding:10px 15px;top:calc(60px + 10px)}
+}
+
+/* ============================ PANTALLA DE CARGA ============================ */
+.cargando{
+  position:fixed;inset:0;z-index:9998;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  background:var(--red);
+  /* Red de seguridad: si el JavaScript no corre, igual se va sola a los 8s
+     en vez de dejar la página tapada para siempre. */
+  animation:cargandoRescate 0s linear 8s forwards;
+}
+.cargando-sale{
+  opacity:0;visibility:hidden;
+  transition:opacity .45s ease, visibility 0s linear .45s;
+}
+@keyframes cargandoRescate{to{opacity:0;visibility:hidden}}
+
+.cargando-marca{display:flex;flex-direction:column;align-items:center;gap:14px}
+.cargando-porcion{
+  width:78px;height:78px;
+  filter:drop-shadow(0 6px 0 rgba(28,20,12,.25));
+  animation:cargandoLatido 1.1s ease-in-out infinite;
+}
+@keyframes cargandoLatido{
+  0%,100%{transform:translateY(0) rotate(-4deg)}
+  50%    {transform:translateY(-12px) rotate(4deg)}
+}
+.cargando-nombre{
+  font-family:var(--font-luckiest),system-ui,cursive;
+  font-size:clamp(24px,6vw,34px);letter-spacing:.03em;
+  color:var(--cream);text-shadow:2px 2px 0 rgba(28,20,12,.3);
+}
+
+.cargando-barra{
+  width:min(190px,52vw);height:7px;border-radius:20px;overflow:hidden;
+  background:rgba(28,20,12,.28);
+}
+.cargando-barra span{
+  display:block;width:40%;height:100%;border-radius:20px;background:var(--green);
+  animation:cargandoCorre 1.1s ease-in-out infinite;
+}
+@keyframes cargandoCorre{
+  0%  {transform:translateX(-100%)}
+  100%{transform:translateX(250%)}
+}
+
+/* Sin scroll mientras se ve la pantalla de carga */
+html.cargando-activo,html.cargando-activo body{overflow:hidden}
+
+@media(prefers-reduced-motion:reduce){
+  .cargando-porcion,.cargando-barra span{animation:none}
 }

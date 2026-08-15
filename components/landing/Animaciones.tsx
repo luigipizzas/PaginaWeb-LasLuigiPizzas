@@ -28,6 +28,16 @@ export default function Animaciones() {
     // efecto dos veces en desarrollo y los gsap.from() quedan tomando como
     // destino el valor inicial ya alterado (botones en opacity 0, hero con
     // scale 1.06 desbordando en celular).
+    /* Los listeners de interfaz se registran acá para poder sacarlos al
+       desmontar. Sin esto, React 19 (que monta el efecto dos veces en
+       desarrollo) dejaba DOS listeners en el botón del menú: cada toque lo
+       abría y lo cerraba en el mismo instante, así que parecía no funcionar. */
+    const limpiezas = [];
+    const escuchar = (el, evento, fn, opciones) => {
+      el.addEventListener(evento, fn, opciones);
+      limpiezas.push(() => el.removeEventListener(evento, fn, opciones));
+    };
+
     const ctx = gsap.context(() => {
 
     // ---------- Interacciones de la interfaz ----------
@@ -37,11 +47,11 @@ export default function Animaciones() {
       const menu = document.getElementById('mobileMenu');
       if(!toggle || !menu) return;
       const close = ()=>{ menu.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); };
-      toggle.addEventListener('click', ()=>{
+      escuchar(toggle, 'click', ()=>{
         const open = menu.classList.toggle('open');
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       });
-      menu.querySelectorAll('a').forEach(a=>a.addEventListener('click', close));
+      menu.querySelectorAll('a').forEach(a=>escuchar(a, 'click', close));
     })();
 
     /* ===================== NAV: transparente sobre el hero, sólido al scrollear ===================== */
@@ -57,8 +67,8 @@ export default function Animaciones() {
         nav.classList.toggle('scrolled', window.scrollY > limit);
       }
       update();
-      window.addEventListener('scroll', update, {passive:true});
-      window.addEventListener('resize', update);
+      escuchar(window, 'scroll', update, {passive:true});
+      escuchar(window, 'resize', update);
 
       // refuerzo con IntersectionObserver (más preciso y eficiente)
       if(hero && 'IntersectionObserver' in window){
@@ -71,7 +81,7 @@ export default function Animaciones() {
     /* ===================== REELS: reproducir video propio ===================== */
     (function(){
       document.querySelectorAll('.reel-cover').forEach(cover=>{
-        cover.addEventListener('click', function(e){
+        escuchar(cover, 'click', function(e){
           const src = cover.dataset.video;
           const card = cover.closest('.reel-card');
           const vid = card ? card.querySelector('.reel-vid') : null;
@@ -111,7 +121,7 @@ export default function Animaciones() {
         gsap.ticker.lagSmoothing(0);
         // Los enlaces internos (#menu, #local, etc.) hacen scroll suave con Lenis
         document.querySelectorAll('a[href^="#"]').forEach(a => {
-          a.addEventListener('click', e => {
+          escuchar(a, 'click', e => {
             const id = a.getAttribute('href');
             if(id === '#'){ e.preventDefault(); lenis.scrollTo(0); return; }
             const el = document.querySelector(id);
@@ -166,7 +176,7 @@ export default function Animaciones() {
             const rotY = gsap.quickTo(oPhoto, 'rotationY', {duration:.4, ease:'power2.out'});
             const scl  = gsap.quickTo(oPhoto, 'scale',     {duration:.4, ease:'power2.out'});
             const MAX = 11; // grados de inclinación
-            oPhoto.addEventListener('pointermove', e=>{
+            escuchar(oPhoto, 'pointermove', e=>{
               const r = oPhoto.getBoundingClientRect();
               const px = (e.clientX - r.left) / r.width  - .5;   // -0.5 .. 0.5
               const py = (e.clientY - r.top)  / r.height - .5;
@@ -174,7 +184,7 @@ export default function Animaciones() {
               rotX(-py * MAX * 2);
               scl(1.035);
             });
-            oPhoto.addEventListener('pointerleave', ()=>{ rotX(0); rotY(0); scl(1); });
+            escuchar(oPhoto, 'pointerleave', ()=>{ rotX(0); rotY(0); scl(1); });
           }
         }
 
@@ -265,15 +275,28 @@ export default function Animaciones() {
       // Ancho natural del texto: lo necesitamos para poder animarlo de 0 a completo.
       const TEXTW = (()=>{ text.style.width='auto'; const w = text.scrollWidth; text.style.width='0px'; return w; })();
       const GAP = 10;
+      const PAD = 20;   // aire a los costados cuando ya es píldora
+
+      // El fab queda anclado en su posición de reposo y el morph lo mueve con
+      // transforms. Antes se le escribían left/top en cada frame, lo que obliga
+      // al navegador a recalcular el layout y hacía vibrar el botón al scrollear.
+      function anclar(){
+        const a = rest();
+        gsap.set(fab, {left:a.l, top:a.t});
+      }
+      anclar();
 
       function place(p){
         const r = target.getBoundingClientRect(), a = rest();
         gsap.set(fab, {
           width : a.w + (r.width  - a.w)*p,
           height: a.h + (r.height - a.h)*p,
-          left  : a.l + (r.left   - a.l)*p,
-          top   : a.t + (r.top    - a.t)*p,
-          gap   : GAP * p
+          x     : (r.left - a.l) * p,
+          y     : (r.top  - a.t) * p,
+          gap   : GAP * p,
+          paddingLeft : PAD * p,     // sin esto la "P" queda pegada al borde
+          paddingRight: PAD * p,
+          force3D: true
         });
         gsap.set(ico,  {scale: 1 - .18*p});
         // El texto crece en ancho junto con la píldora y recién se ve sobre el final
@@ -286,7 +309,7 @@ export default function Animaciones() {
         place(0);
         gsap.set(fab,{autoAlpha:1});
         target.classList.remove('is-replaced');
-        window.addEventListener('resize', ()=>place(0));
+        escuchar(window, 'resize', ()=>place(0));
         return;
       }
 
@@ -301,12 +324,42 @@ export default function Animaciones() {
         onLeaveBack: ()=>gsap.to(fab,{autoAlpha:0, scale:.5, duration:.25, ease:'power2.in'})
       });
 
-      // Progreso del morph: de círculo (0) a botón (1)
-      // Arranca cuando la sección ya está bien entrada en pantalla (no apenas asoma)
-      const morph = ScrollTrigger.create({trigger:'.cta-band', start:'top 58%', end:'top 22%'});
+      /* Progreso del morph: de círculo (0) a botón (1).
+         Se calcula según qué tan cerca del centro de la pantalla está el botón
+         real, y no con el progreso de un ScrollTrigger. La diferencia importa:
+         aquel se quedaba clavado en 1 después de pasar la sección, así que el
+         flotante seguía pegado al botón mientras éste se iba hacia arriba, y
+         terminaba asomando cortado en el borde superior de la pantalla.
+         Midiendo la distancia, vuelve solo a ser círculo por cualquiera de los
+         dos lados. */
+      function progresoDeseado(){
+        const r = target.getBoundingClientRect();
+        if (r.height === 0) return 0;                 // oculto: no hay a dónde ir
+        const centroBoton   = r.top + r.height / 2;
+        const distanciaAlEje = Math.abs(centroBoton - innerHeight / 2);
+        const zonaPlena = innerHeight * 0.30;         // acá ya es píldora
+        const zonaNula  = innerHeight * 0.60;         // más lejos, círculo
+        if (distanciaAlEje <= zonaPlena) return 1;
+        if (distanciaAlEje >= zonaNula)  return 0;
+        return 1 - (distanciaAlEje - zonaPlena) / (zonaNula - zonaPlena);
+      }
 
-      gsap.ticker.add(()=>place(morph.progress));
-      window.addEventListener('resize', ()=>place(morph.progress));
+      // Suavizado: además de evitar saltos, filtra el temblor de sub-píxeles
+      // que trae el scroll suave.
+      let p = 0;
+      gsap.ticker.add(()=>{
+        const objetivo = progresoDeseado();
+        // Mientras es un círculo quieto en su esquina no hay nada que
+        // recalcular. Saltear acá ahorra un gsap.set por frame durante casi
+        // toda la página, que es lo que hacía trabajar de más a las máquinas
+        // con poca potencia.
+        if (objetivo === 0 && p === 0) return;
+        p += (objetivo - p) * 0.2;
+        if (Math.abs(objetivo - p) < 0.003) p = objetivo;
+        place(p);
+      });
+
+      escuchar(window, 'resize', ()=>{ anclar(); place(p); });
 
       /* ===== SUCURSALES: arrancan superpuestas al centro y se acomodan ===== */
       (function(){
@@ -355,7 +408,10 @@ export default function Animaciones() {
 
     // revert() deshace animaciones y ScrollTriggers, y restaura los estilos
     // originales: al volver a montarse, los from() arrancan limpios.
-    return () => ctx.revert();
+    return () => {
+      limpiezas.forEach((quitar) => quitar());
+      ctx.revert();
+    };
   }, []);
 
   return null;
