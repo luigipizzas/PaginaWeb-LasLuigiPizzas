@@ -32,14 +32,18 @@ export default function Cargando() {
       const esperar = Math.max(0, MINIMO_MS - pasado);
       window.setTimeout(() => {
         setSaliendo(true);
-        window.setTimeout(() => setFuera(true), 450); // dura el fundido
+        // Tiene que durar lo mismo que el zoom del CSS (.55s), si no se corta.
+        window.setTimeout(() => setFuera(true), 560);
       }, esperar);
     };
 
-    // Las imágenes del hero son lo que realmente se ve primero.
+    // Lo que se ve primero: la pizza de esta misma pantalla y el hero.
+    // (Las pizzas de los costados usan el mismo archivo, así que van de yapa.)
     const imagenesArriba = () => {
       const imgs = [
-        ...document.querySelectorAll<HTMLImageElement>(".hero-img, .side-pizza"),
+        ...document.querySelectorAll<HTMLImageElement>(
+          ".cargando-pizza, .hero-img"
+        ),
       ];
       return Promise.all(
         imgs.map((img) =>
@@ -80,32 +84,22 @@ export default function Cargando() {
       aria-live="polite"
       aria-label="Cargando la página"
     >
-      <div className="cargando-marca">
-        <svg viewBox="0 0 48 48" className="cargando-porcion" aria-hidden="true">
-          <path
-            d="M24 4 8 40l16-6 16 6L24 4Z"
-            fill="#7FB63C"
-            stroke="#1C140C"
-            strokeWidth="2.4"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M24 4 15 24l9 3 9-3L24 4Z"
-            fill="#F4B400"
-            stroke="#1C140C"
-            strokeWidth="2.4"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M24 4 19 14l5 1 5-1-5-10Z"
-            fill="#E23528"
-            stroke="#1C140C"
-            strokeWidth="2.4"
-            strokeLinejoin="round"
-          />
-        </svg>
-        <span className="cargando-nombre">LUIGI PIZZAS</span>
+      {/* La misma pizza que después recorre el menú al scrollear: gira
+          mientras carga y, al terminar, se acerca y se va.
+          Van en dos capas a propósito: la caja hace el zoom y la imagen gira.
+          Si el mismo elemento hiciera las dos cosas, al cortar el giro para
+          hacer el zoom el navegador no puede interpolar y el acercamiento
+          sale de un salto. */}
+      <div className="cargando-pizza-caja">
+        <img
+          className="cargando-pizza"
+          src="/PIZZA.PNG"
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+        />
       </div>
+      <span className="cargando-nombre">LUIGI PIZZAS</span>
       <div className="cargando-barra" aria-hidden="true">
         <span />
       </div>
