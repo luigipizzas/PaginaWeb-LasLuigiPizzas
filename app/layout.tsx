@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Luckiest_Guy, Pacifico, Space_Grotesk, Space_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -89,6 +89,13 @@ export const metadata: Metadata = {
     description: DESCRIPCION,
     images: ["/og.jpg"],
   },
+};
+
+// Permite que iOS exponga el área segura de la isla dinámica al CSS.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

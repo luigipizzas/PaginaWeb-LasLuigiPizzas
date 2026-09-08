@@ -11,7 +11,9 @@
   --char-2:#2A1E12;
   --ink:#241708;
   --shadow: rgba(28,20,12,.18);
-  --nav-h:80px;
+  --nav-row-h:80px;
+  --nav-safe-top:env(safe-area-inset-top,0px);
+  --nav-h:calc(var(--nav-row-h) + var(--nav-safe-top));
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:auto}  /* el scroll suave lo maneja Lenis */
@@ -71,16 +73,16 @@ body::before{
 /* Transparente: el fondo es la propia imagen del hero. Al scrollear toma fondo sólido. */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:100;
+  padding-top:var(--nav-safe-top);
   background:transparent;
   border-bottom:3px solid transparent;
   transition:background .3s ease, border-color .3s ease;
 }
-nav .wrap{display:flex;align-items:center;justify-content:space-between;height:var(--nav-h);gap:14px}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:var(--nav-row-h);gap:14px}
 .logo{
   display:flex;align-items:center;justify-content:center;flex:none;
-  padding:4px 9px 3px;border:2px solid rgba(28,20,12,.72);border-radius:14px;
-  background:rgba(255,249,233,.94);box-shadow:3px 3px 0 rgba(28,20,12,.72);
-  transition:background .3s ease,box-shadow .3s ease;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .2s ease,visibility 0s linear .2s;
 }
 .logo-img{display:block;width:auto;height:62px;max-width:clamp(122px,13vw,152px);object-fit:contain}
 .navlinks{display:flex;gap:32px;font-family:var(--font-luckiest),cursive;font-size:18px;text-transform:uppercase;letter-spacing:.02em}
@@ -93,7 +95,7 @@ nav .nav-cta{background:var(--cream);color:var(--char)}
 .menu-toggle svg{stroke:var(--cream)}
 /* estado scrolleado: vuelve el fondo y los colores de marca */
 nav.scrolled{background:var(--paper);border-bottom-color:var(--char)}
-nav.scrolled .logo{background:var(--paper);box-shadow:3px 3px 0 var(--char)}
+nav.scrolled .logo{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .2s ease}
 nav.scrolled .navlinks a{color:var(--char);text-shadow:none}
 nav.scrolled .navlinks a:hover,nav.scrolled .navlinks a:focus-visible{color:var(--red)}
 nav.scrolled .nav-cta{background:var(--red);color:var(--cream)}
@@ -505,8 +507,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
   .suc-map{min-height:200px}
 }
 @media(max-width:620px){
-  :root{--nav-h:64px}
-  .logo{padding:3px 7px 2px;border-radius:11px;box-shadow:2px 2px 0 rgba(28,20,12,.72)}
+  :root{--nav-row-h:64px}
   .logo-img{height:48px;max-width:108px}
   .menu-grid{grid-template-columns:1fr}
   .reels-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
@@ -564,7 +565,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
   /* El nav es fijo: en papel se repetiría/taparía contenido. Lo dejamos en el flujo
      y con fondo, arriba de todo, una sola vez. */
   nav{ position:static !important; background:var(--paper) !important; border-bottom-color:var(--char) !important }
-  nav .logo{ color:var(--red) !important }
+  nav .logo{ opacity:1 !important;visibility:visible !important }
   nav .navlinks a{ color:var(--char) !important }
   .mobile-menu, .menu-toggle{ display:none !important }
 
