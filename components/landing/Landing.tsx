@@ -1,4 +1,5 @@
 import type { Producto, Reel, Sucursal } from "@/lib/tipos";
+import Image from "next/image";
 import MenuGrid from "./MenuGrid";
 import ReelsGrid from "./ReelsGrid";
 import SucursalesGrid from "./SucursalesGrid";
@@ -48,7 +49,17 @@ export default function Landing({
       {/* NAV */}
       <nav>
         <div className="wrap">
-          <a href="#" className="logo"><svg className="mark"><use href="#ic-slice" /></svg>LUIGI&nbsp;PIZZAS</a>
+          <a href="#" className="logo" aria-label="Las Luigi Pizzas — inicio">
+            <Image
+              className="logo-img"
+              src="/logo-las-luigi-pizzas.png"
+              alt="Las Luigi Pizzas"
+              width={1774}
+              height={887}
+              sizes="(max-width: 620px) 108px, 152px"
+              loading="eager"
+            />
+          </a>
           <div className="navlinks">
             <a href="#menu">Menú</a>
             <a href="#nosotros">Nosotros</a>

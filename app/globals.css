@@ -11,6 +11,7 @@
   --char-2:#2A1E12;
   --ink:#241708;
   --shadow: rgba(28,20,12,.18);
+  --nav-h:80px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:auto}  /* el scroll suave lo maneja Lenis */
@@ -74,13 +75,14 @@ nav{
   border-bottom:3px solid transparent;
   transition:background .3s ease, border-color .3s ease;
 }
-nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:14px}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:var(--nav-h);gap:14px}
 .logo{
-  font-family:var(--font-luckiest),cursive;font-size:clamp(22px,4vw,28px);letter-spacing:.01em;
-  color:var(--cream);line-height:1;display:flex;align-items:center;gap:10px;white-space:nowrap;
-  text-shadow:0 2px 12px rgba(0,0,0,.3);transition:color .3s, text-shadow .3s;
+  display:flex;align-items:center;justify-content:center;flex:none;
+  padding:4px 9px 3px;border:2px solid rgba(28,20,12,.72);border-radius:14px;
+  background:rgba(255,249,233,.94);box-shadow:3px 3px 0 rgba(28,20,12,.72);
+  transition:background .3s ease,box-shadow .3s ease;
 }
-.logo .mark{width:38px;height:38px;flex:none;filter:drop-shadow(0 2px 0 rgba(28,20,12,.25))}
+.logo-img{display:block;width:auto;height:62px;max-width:clamp(122px,13vw,152px);object-fit:contain}
 .navlinks{display:flex;gap:32px;font-family:var(--font-luckiest),cursive;font-size:18px;text-transform:uppercase;letter-spacing:.02em}
 .navlinks a{position:relative;padding:6px 0;color:var(--cream);transition:color .2s;text-shadow:0 2px 12px rgba(0,0,0,.3)}
 .navlinks a::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--green);transition:width .3s}
@@ -91,13 +93,13 @@ nav .nav-cta{background:var(--cream);color:var(--char)}
 .menu-toggle svg{stroke:var(--cream)}
 /* estado scrolleado: vuelve el fondo y los colores de marca */
 nav.scrolled{background:var(--paper);border-bottom-color:var(--char)}
-nav.scrolled .logo{color:var(--red);text-shadow:none}
+nav.scrolled .logo{background:var(--paper);box-shadow:3px 3px 0 var(--char)}
 nav.scrolled .navlinks a{color:var(--char);text-shadow:none}
 nav.scrolled .navlinks a:hover,nav.scrolled .navlinks a:focus-visible{color:var(--red)}
 nav.scrolled .nav-cta{background:var(--red);color:var(--cream)}
 nav.scrolled .menu-toggle svg{stroke:var(--char)}
 /* al ser nav fijo, los anclas no quedan tapadas */
-section[id],header[id]{scroll-margin-top:84px}
+section[id],header[id]{scroll-margin-top:calc(var(--nav-h) + 16px)}
 .btn{
   font-family:var(--font-luckiest),cursive;letter-spacing:.03em;text-transform:uppercase;
   background:var(--red);color:var(--cream);border:3px solid var(--char);
@@ -115,7 +117,7 @@ section[id],header[id]{scroll-margin-top:84px}
 
 /* mobile drawer */
 .mobile-menu{
-  display:none;position:fixed;inset:68px 0 auto 0;z-index:99;
+  display:none;position:fixed;inset:var(--nav-h) 0 auto 0;z-index:99;
   background:var(--paper);border-bottom:3px solid var(--char);
   padding:18px clamp(18px,4vw,28px) 26px;
   /* Antes era translateY(-120%), y ese 20% de sobra tenía que cubrir además
@@ -503,8 +505,9 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
   .suc-map{min-height:200px}
 }
 @media(max-width:620px){
-  nav .wrap{height:60px}
-  .mobile-menu{inset-block-start:60px}
+  :root{--nav-h:64px}
+  .logo{padding:3px 7px 2px;border-radius:11px;box-shadow:2px 2px 0 rgba(28,20,12,.72)}
+  .logo-img{height:48px;max-width:108px}
   .menu-grid{grid-template-columns:1fr}
   .reels-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
   .steps{grid-template-columns:1fr}
@@ -705,7 +708,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
 /* Aviso flotante al mandar a elegir sucursal */
 .aviso-flotante{
   position:fixed;z-index:140;left:50%;transform:translateX(-50%);
-  top:calc(68px + 12px);
+  top:calc(var(--nav-h) + 12px);
   display:inline-flex;align-items:center;gap:9px;
   max-width:min(92vw,460px);
   background:var(--char);color:var(--cream);
@@ -724,7 +727,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
 @media(max-width:600px){
   .carrito-fab{left:12px;bottom:12px;padding:8px 14px 8px 10px;font-size:14px}
   .carrito-fab-ico svg{width:22px;height:22px}
-  .aviso-flotante{font-size:13px;padding:10px 15px;top:calc(60px + 10px)}
+  .aviso-flotante{font-size:13px;padding:10px 15px;top:calc(var(--nav-h) + 10px)}
 }
 
 /* ============================ PANTALLA DE CARGA ============================ */
