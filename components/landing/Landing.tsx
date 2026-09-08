@@ -222,7 +222,15 @@ export default function Landing({
         <div className="wrap">
           <div className="foot-grid">
             <div>
-              <div className="foot-logo"><svg className="mark"><use href="#ic-slice" /></svg>LUIGI <span>PIZZAS</span></div>
+              <a href="#" className="foot-logo" aria-label="Las Luigi Pizzas — volver al inicio">
+                <Image
+                  src="/logo-las-luigi-pizzas.png"
+                  alt="Las Luigi Pizzas"
+                  width={1774}
+                  height={887}
+                  sizes="(max-width: 620px) 210px, 260px"
+                />
+              </a>
               <p>Pizzas a la piedra, lomos, hamburguesas y empanadas. Del horno directo a tu mesa. En el barrio, para el barrio.</p>
             </div>
             <div className="foot-col">

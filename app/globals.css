@@ -467,9 +467,8 @@ section[id],header[id]{scroll-margin-top:calc(var(--nav-h) + 16px)}
 /* ---------- FOOTER ---------- */
 footer{background:var(--char);color:var(--paper);padding:66px 0 38px}
 .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px;align-items:start}
-.foot-logo{font-family:var(--font-luckiest),cursive;font-size:40px;color:var(--red);line-height:.95;display:flex;align-items:center;gap:12px}
-.foot-logo .mark{width:44px;height:44px}
-.foot-logo span{color:var(--green)}
+.foot-logo{display:block;width:min(260px,100%)}
+.foot-logo img{display:block;width:100%;height:auto;object-fit:contain}
 footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320px}
 .foot-col h5{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.16em;font-size:12px;color:var(--green);margin-bottom:14px}
 .foot-col a{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:15px;opacity:.9}
@@ -509,6 +508,7 @@ footer p{font-size:14px;line-height:1.6;opacity:.8;margin-top:12px;max-width:320
 @media(max-width:620px){
   :root{--nav-row-h:64px}
   .logo-img{height:48px;max-width:108px}
+  .foot-logo{width:min(210px,70vw)}
   .menu-grid{grid-template-columns:1fr}
   .reels-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
   .steps{grid-template-columns:1fr}
