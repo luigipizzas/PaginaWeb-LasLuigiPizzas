@@ -96,6 +96,9 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // Safari usa este color en la franja de la isla dinámica. Animaciones lo
+  // sincroniza con el navbar cuando la página deja atrás el hero.
+  themeColor: "#E23528",
 };
 
 export default function RootLayout({

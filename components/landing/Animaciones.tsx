@@ -60,11 +60,19 @@ export default function Animaciones() {
       const hero = document.querySelector('.hero');
       if(!nav) return;
 
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      function setScrolled(scrolled){
+        nav.classList.toggle('scrolled', scrolled);
+        // En iPhone esta etiqueta pinta la zona de la isla dinámica. Mantenerla
+        // al día evita que Safari muestre la sección que se desplaza por detrás.
+        if(themeColor) themeColor.setAttribute('content', scrolled ? '#F8F1DC' : '#E23528');
+      }
+
       // Mientras el hero está en pantalla el nav va transparente (se ve la imagen).
       // Cuando el hero queda arriba, el nav toma fondo sólido para que se lea.
       function update(){
         const limit = hero ? Math.max(hero.offsetHeight - 90, 40) : 40;
-        nav.classList.toggle('scrolled', window.scrollY > limit);
+        setScrolled(window.scrollY > limit);
       }
       update();
       escuchar(window, 'scroll', update, {passive:true});
@@ -73,7 +81,7 @@ export default function Animaciones() {
       // refuerzo con IntersectionObserver (más preciso y eficiente)
       if(hero && 'IntersectionObserver' in window){
         new IntersectionObserver(([e])=>{
-          nav.classList.toggle('scrolled', !e.isIntersecting);
+          setScrolled(!e.isIntersecting);
         }, {rootMargin:'-90px 0px 0px 0px', threshold:0}).observe(hero);
       }
     })();
