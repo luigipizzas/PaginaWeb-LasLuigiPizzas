@@ -1,6 +1,8 @@
+/* El linter de React 19 confunde el objeto estable del hook con un ref. */
+/* eslint-disable react-hooks/refs */
 "use client";
 
-import { useState, useActionState, useEffect } from "react";
+import { useState, useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import type { Sucursal } from "@/lib/tipos";
 import { guardarSucursal, borrarSucursal, type Resultado } from "./actions";
@@ -50,7 +52,7 @@ export default function FichaSucursal({
     if (res.ok) {
       auto.marcarGuardado();
       onGuardado?.();
-    }
+    } else if (res.error) auto.marcarError();
   });
   useResultadoNuevo(estadoBorrar, (res) => {
     if (res.ok) onGuardado?.();
@@ -84,7 +86,7 @@ export default function FichaSucursal({
 
   return (
     <div className={styles.ficha}>
-      <form ref={auto.formRef} action={guardar} className={styles.formFicha}>
+      <form ref={auto.conectarFormulario} action={guardar} className={styles.formFicha}>
         <input type="hidden" name="id" value={sucursal.id} />
         <input type="hidden" name="sort_order" value={sucursal.sort_order} />
 
@@ -152,6 +154,7 @@ export default function FichaSucursal({
           <input
             className={styles.input}
             name="whatsapp"
+            inputMode="tel"
             defaultValue={sucursal.whatsapp ?? ""}
             onInput={auto.alCambiar}
             placeholder="5492611234567"
@@ -168,6 +171,7 @@ export default function FichaSucursal({
           <input
             className={styles.input}
             name="telefono"
+            inputMode="tel"
             defaultValue={sucursal.telefono ?? ""}
             onInput={auto.alCambiar}
             placeholder="+54 9 261 123 4567"

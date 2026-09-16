@@ -1,5 +1,6 @@
 import type { Producto } from "@/lib/tipos";
 import BotonAgregar from "@/components/carrito/BotonAgregar";
+import { normalizarPrecio } from "@/lib/precios";
 
 /** Grilla del menú. Mismo markup que la landing original, pero con datos de Supabase. */
 export default function MenuGrid({ productos }: { productos: Producto[] }) {
@@ -25,7 +26,7 @@ export default function MenuGrid({ productos }: { productos: Producto[] }) {
             <h3 className="card-name">{p.name}</h3>
             <p className="card-desc">{p.description}</p>
             <div className="card-foot">
-              <span className="card-price">{p.price}</span>
+              <span className="card-price">{normalizarPrecio(p.price) ?? "Consultar"}</span>
               <BotonAgregar id={p.id} nombre={p.name} precio={p.price} />
             </div>
           </div>

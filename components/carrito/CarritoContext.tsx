@@ -8,6 +8,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { formatearPrecio, precioANumero } from "@/lib/precios";
+
+export { formatearPrecio, precioANumero } from "@/lib/precios";
 
 export type ItemCarrito = {
   id: string;
@@ -35,24 +38,6 @@ type Carrito = {
 const Ctx = createContext<Carrito | null>(null);
 const CLAVE = "luigi-carrito";
 
-/**
- * Los precios se guardan como texto libre ("$8.900") porque el dueño los
- * escribe a mano desde el panel. Acá se pasan a número para poder sumarlos:
- * se descarta todo lo que no sea dígito, tomando el punto como separador de
- * miles (que es como se escribe en Argentina).
- */
-export function precioANumero(precio: string | null | undefined): number {
-  if (!precio) return 0;
-  const limpio = precio.replace(/[^\d,]/g, "").replace(",", ".");
-  const n = Number.parseFloat(limpio);
-  return Number.isFinite(n) ? Math.round(n) : 0;
-}
-
-/** 8900 -> "$8.900" */
-export function formatearPrecio(n: number): string {
-  return "$" + n.toLocaleString("es-AR");
-}
-
 export function CarritoProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ItemCarrito[]>([]);
   const [nombreCliente, setNombreCliente] = useState("");
@@ -61,11 +46,13 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
   const [aviso, setAviso] = useState<string | null>(null);
 
   // Recuperar lo guardado (si cerró la pestaña sin pedir)
+  // La hidratación del carrito necesita copiar una vez el estado de localStorage.
   useEffect(() => {
     try {
       const crudo = localStorage.getItem(CLAVE);
       if (crudo) {
         const d = JSON.parse(crudo);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (Array.isArray(d.items)) setItems(d.items);
         if (typeof d.nombre === "string") setNombreCliente(d.nombre);
       }

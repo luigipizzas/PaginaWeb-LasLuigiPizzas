@@ -9,6 +9,7 @@ import { CarritoProvider } from "@/components/carrito/CarritoContext";
 import PanelCarrito from "@/components/carrito/PanelCarrito";
 import BotonWhatsAppFlotante from "@/components/carrito/BotonWhatsAppFlotante";
 import BotonPedidoCTA from "@/components/carrito/BotonPedidoCTA";
+import ActualizadorVistaPrevia from "./ActualizadorVistaPrevia";
 
 /**
  * Landing de Las Luigi Pizzas.
@@ -36,6 +37,10 @@ export default function Landing({
 
   return (
     <CarritoProvider>
+      <ActualizadorVistaPrevia />
+      <h1 className="sr-only">
+        Las Luigi Pizzas en Mendoza: pizzas a la piedra, lomos, hamburguesas y empanadas
+      </h1>
       <Cargando />
       {/* ===== SVG SPRITES (brand mark reused) ===== */}
       <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">

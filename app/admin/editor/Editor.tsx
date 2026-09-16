@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Producto, Reel, Sucursal } from "@/lib/tipos";
@@ -44,14 +44,26 @@ export default function Editor({
   // En celular no entran las dos columnas: se alterna entre editar y previsualizar.
   const [mostrandoVista, setMostrandoVista] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const refrescoPanel = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
+
+  useEffect(() => () => {
+    if (refrescoPanel.current) clearTimeout(refrescoPanel.current);
+  }, []);
 
   // Refresca la vista previa y también los datos del panel (hace falta para
   // que la lista refleje el nuevo orden o el nombre recién cambiado).
   const refrescarVista = useCallback(() => {
     const marco = iframeRef.current;
-    if (marco) marco.src = `${marco.src.split("?")[0]}?v=${Date.now()}`;
-    router.refresh();
+    marco?.contentWindow?.postMessage(
+      { tipo: "luigi:actualizar-vista" },
+      window.location.origin
+    );
+
+    // El panel también recibe los datos actuales (nombres, orden y altas),
+    // pero agrupamos respuestas cercanas para no competir con el guardado.
+    if (refrescoPanel.current) clearTimeout(refrescoPanel.current);
+    refrescoPanel.current = setTimeout(() => router.refresh(), 180);
   }, [router]);
 
   const cambiarPestana = (p: Pestana) => {

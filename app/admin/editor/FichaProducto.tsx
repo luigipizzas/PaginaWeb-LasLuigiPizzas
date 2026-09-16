@@ -1,3 +1,5 @@
+/* El linter de React 19 confunde el objeto estable del hook con un ref. */
+/* eslint-disable react-hooks/refs */
 "use client";
 
 import { useState, useActionState, useEffect, useRef } from "react";
@@ -8,6 +10,7 @@ import { useAutoGuardado, textoEstado, useResultadoNuevo } from "./useAutoGuarda
 import SubirArchivo from "./SubirArchivo";
 import Reordenar from "./Reordenar";
 import styles from "./editor.module.css";
+import { formatearNumeroConMiles, normalizarPrecio } from "@/lib/precios";
 
 function BotonAgregar() {
   const { pending } = useFormStatus();
@@ -35,6 +38,9 @@ export default function FichaProducto({
 }) {
   const [abierta, setAbierta] = useState(esNuevo);
   const [imagen, setImagen] = useState(producto.image_url ?? "");
+  const [precio, setPrecio] = useState(
+    formatearNumeroConMiles(producto.price)
+  );
 
   const [estado, guardar] = useActionState<Resultado, FormData>(
     guardarProducto,
@@ -54,7 +60,7 @@ export default function FichaProducto({
     if (r.ok) {
       auto.marcarGuardado();
       onGuardado?.();
-    }
+    } else if (r.error) auto.marcarError();
   });
   useResultadoNuevo(estadoBorrar, (r) => {
     if (r.ok) onGuardado?.();
@@ -88,7 +94,7 @@ export default function FichaProducto({
           )}
           <span className={styles.filaTexto}>
             <strong>{producto.name}</strong>
-            <span>{producto.price}</span>
+            <span>{normalizarPrecio(producto.price) ?? "Sin precio"}</span>
           </span>
           {!producto.visible && <span className={styles.oculto}>Oculto</span>}
         </button>
@@ -105,7 +111,7 @@ export default function FichaProducto({
 
   return (
     <div className={styles.ficha}>
-      <form ref={auto.formRef} action={guardar} className={styles.formFicha}>
+      <form ref={auto.conectarFormulario} action={guardar} className={styles.formFicha}>
         <input type="hidden" name="id" value={producto.id} />
         <input type="hidden" name="image_url" value={imagen} />
         <input type="hidden" name="sort_order" value={producto.sort_order} />
@@ -139,10 +145,23 @@ export default function FichaProducto({
             <input
               className={styles.input}
               name="price"
-              defaultValue={producto.price ?? ""}
-              onInput={auto.alCambiar}
-              placeholder="$10.500"
+              value={precio}
+              onChange={(evento) => {
+                setPrecio(formatearNumeroConMiles(evento.target.value));
+                auto.alCambiar();
+              }}
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="10.500"
+              aria-describedby={`precio-ayuda-${producto.id || "nuevo"}`}
             />
+            <small
+              className={styles.pista}
+              id={`precio-ayuda-${producto.id || "nuevo"}`}
+            >
+              Escribí solo el número. Se guarda como pesos y los miles se
+              separan automáticamente.
+            </small>
           </label>
           <label className={styles.campo}>
             <span className={styles.etiqueta}>Etiqueta</span>

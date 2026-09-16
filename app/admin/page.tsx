@@ -3,6 +3,7 @@ import { getAdminUser, createClient } from "@/lib/supabase/server";
 import styles from "./admin.module.css";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Panel de administración" };
 
 export default async function AdminPage() {
   const user = await getAdminUser();

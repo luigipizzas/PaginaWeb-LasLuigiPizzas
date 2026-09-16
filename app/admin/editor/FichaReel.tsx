@@ -1,3 +1,5 @@
+/* El linter de React 19 confunde el objeto estable del hook con un ref. */
+/* eslint-disable react-hooks/refs */
 "use client";
 
 import { useState, useActionState, useEffect, useRef } from "react";
@@ -49,7 +51,7 @@ export default function FichaReel({
     if (res.ok) {
       auto.marcarGuardado();
       onGuardado?.();
-    }
+    } else if (res.error) auto.marcarError();
   });
   useResultadoNuevo(estadoBorrar, (res) => {
     if (res.ok) onGuardado?.();
@@ -96,7 +98,7 @@ export default function FichaReel({
 
   return (
     <div className={styles.ficha}>
-      <form ref={auto.formRef} action={guardar} className={styles.formFicha}>
+      <form ref={auto.conectarFormulario} action={guardar} className={styles.formFicha}>
         <input type="hidden" name="id" value={reel.id} />
         <input type="hidden" name="poster_url" value={portada} />
         <input type="hidden" name="video_url" value={video} />

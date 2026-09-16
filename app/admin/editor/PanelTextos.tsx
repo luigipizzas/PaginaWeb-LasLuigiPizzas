@@ -1,6 +1,8 @@
+/* El linter de React 19 confunde el objeto estable del hook con un ref. */
+/* eslint-disable react-hooks/refs */
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { guardarTextos, type Resultado } from "./actions";
 import { useAutoGuardado, textoEstado, useResultadoNuevo } from "./useAutoGuardado";
 import styles from "./editor.module.css";
@@ -58,11 +60,11 @@ export default function PanelTextos({
     if (res.ok) {
       auto.marcarGuardado();
       onGuardado?.();
-    }
+    } else if (res.error) auto.marcarError();
   });
 
   return (
-    <form ref={auto.formRef} action={accion} className={styles.formTextos}>
+    <form ref={auto.conectarFormulario} action={accion} className={styles.formTextos}>
       <div className={styles.cabeceraFicha}>
         <p className={styles.ayuda}>
           Cambiá los textos de la página. Se guardan solos.
@@ -96,6 +98,7 @@ export default function PanelTextos({
                     name={nombre}
                     defaultValue={valor}
                     onInput={auto.alCambiar}
+                    inputMode={campo.id === "whatsapp" ? "tel" : undefined}
                   />
                 )}
               </label>

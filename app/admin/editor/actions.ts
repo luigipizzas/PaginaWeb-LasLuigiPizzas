@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient, getAdminUser } from "@/lib/supabase/server";
+import { normalizarPrecio } from "@/lib/precios";
 
 export type Resultado = { ok?: string; error?: string };
 
@@ -33,7 +34,7 @@ export async function guardarProducto(
     const fila = {
       name,
       tag: String(formData.get("tag") ?? "").trim() || null,
-      price: String(formData.get("price") ?? "").trim() || null,
+      price: normalizarPrecio(String(formData.get("price") ?? "")),
       description: String(formData.get("description") ?? "").trim() || null,
       image_url: String(formData.get("image_url") ?? "").trim() || null,
       visible: formData.get("visible") === "on",
