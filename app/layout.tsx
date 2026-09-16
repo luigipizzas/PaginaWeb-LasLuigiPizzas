@@ -42,6 +42,9 @@ export const metadata: Metadata = {
   },
   description: DESCRIPCION,
   applicationName: "Las Luigi Pizzas",
+  verification: {
+    google: "m4hSzPC2qWMhoeJwPb2EZ9gVM09A8KVegkGSMTJyFag",
+  },
   alternates: { canonical: "/" },
   keywords: [
     "pizzería en Mendoza",
