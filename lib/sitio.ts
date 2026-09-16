@@ -3,8 +3,8 @@ const SITIO_POR_DEFECTO = "https://www.lasluigipizzas.com.ar";
 /** URL pública estable para metadata, sitemap y datos estructurados. */
 export function obtenerUrlSitio(): string {
   const candidatos = [
-    process.env.NEXT_PUBLIC_SITE_URL,
     SITIO_POR_DEFECTO,
+    process.env.NEXT_PUBLIC_SITE_URL,
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
   ];
 
