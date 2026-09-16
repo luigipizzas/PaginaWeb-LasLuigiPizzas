@@ -43,7 +43,10 @@ export const metadata: Metadata = {
   description: DESCRIPCION,
   applicationName: "Las Luigi Pizzas",
   verification: {
-    google: "m4hSzPC2qWMhoeJwPb2EZ9gVM09A8KVegkGSMTJyFag",
+    google: [
+      "m4hSzPC2qWMhoeJwPb2EZ9gVM09A8KVegkGSMTJyFag",
+      "kW9MCNWC-LuRqqkd88HhVphgP4AKtIK9LBKakuDntxA",
+    ],
   },
   alternates: { canonical: "/" },
   keywords: [
