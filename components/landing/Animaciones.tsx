@@ -212,8 +212,11 @@ export default function Animaciones() {
           });
         }
 
-        gsap.to('.hero-bg-word', {yPercent:20, ease:'none',
-          scrollTrigger:{trigger:'.hero', start:'top top', end:'bottom top', scrub:.5}});
+        const heroBgWord = document.querySelector('.hero-bg-word');
+        if(heroBgWord){
+          gsap.to(heroBgWord, {yPercent:20, ease:'none',
+            scrollTrigger:{trigger:'.hero', start:'top top', end:'bottom top', scrub:.5}});
+        }
 
         /* Pizzas laterales: salen desde abajo del marquee y se abren a cada lado con el scroll */
         (() => {
