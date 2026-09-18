@@ -57,10 +57,11 @@ export default async function Home() {
         logo: `${sitio}/logo-las-luigi-pizzas.png`,
         image: `${sitio}/og.jpg`,
         description:
-          "Pizzas a la piedra, lomos, hamburguesas y empanadas en Rodeo del Medio, Maipú, Mendoza.",
+          "Pizzas a la piedra, lomos, hamburguesas y empanadas en Luján de Cuyo y Rodeo del Medio, Mendoza.",
         areaServed: [
           { "@type": "Place", name: "Rodeo del Medio" },
           { "@type": "AdministrativeArea", name: "Maipú, Mendoza" },
+          { "@type": "City", name: "Luján de Cuyo" },
           { "@type": "City", name: "Mendoza" },
         ],
         sameAs: [`https://www.instagram.com/${instagram.replace(/^@/, "")}`],
@@ -96,10 +97,10 @@ export default async function Home() {
         mainEntity: [
           {
             "@type": "Question",
-            name: "¿Las Luigi Pizzas hace envíos en Rodeo del Medio?",
+            name: "¿Las Luigi Pizzas hace envíos en Luján de Cuyo y Rodeo del Medio?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Sí. Podés elegir la sucursal, armar tu pedido desde el menú y enviarlo por WhatsApp para confirmar la zona de entrega.",
+              text: "Sí. Podés elegir la sucursal de Luján de Cuyo o Rodeo del Medio, armar tu pedido y enviarlo por WhatsApp para confirmar la zona de entrega.",
             },
           },
           {

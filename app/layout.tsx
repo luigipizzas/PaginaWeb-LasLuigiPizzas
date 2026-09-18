@@ -28,9 +28,9 @@ const mono = Space_Mono({
   variable: "--font-mono",
 });
 
-const TITULO = "Pizzería en Rodeo del Medio | Las Luigi Pizzas";
+const TITULO = "Pizzería en Luján de Cuyo y Rodeo del Medio | Las Luigi";
 const DESCRIPCION =
-  "Pedí pizzas a la piedra, lomos, hamburguesas y empanadas en Rodeo del Medio, Maipú. Envíos a domicilio y retiro en Las Luigi Pizzas.";
+  "Pedí pizzas a la piedra, lomos, hamburguesas y empanadas en Luján de Cuyo y Rodeo del Medio. Envíos y retiro en Las Luigi Pizzas.";
 
 const SITIO = obtenerUrlSitio();
 
@@ -55,6 +55,9 @@ export const metadata: Metadata = {
     "pizza Rodeo del Medio",
     "delivery Rodeo del Medio",
     "pizzería Maipú Mendoza",
+    "pizzería en Luján de Cuyo",
+    "pizza Luján de Cuyo",
+    "delivery Luján de Cuyo",
     "pizza a la piedra Mendoza",
     "lomos Mendoza",
     "hamburguesas Mendoza",

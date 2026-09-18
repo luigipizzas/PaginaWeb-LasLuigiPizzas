@@ -39,7 +39,7 @@ export default function Landing({
     <CarritoProvider>
       <ActualizadorVistaPrevia />
       <h1 className="sr-only">
-        Pizzería en Rodeo del Medio, Maipú: Las Luigi Pizzas
+        Pizzería en Luján de Cuyo y Rodeo del Medio: Las Luigi Pizzas
       </h1>
       <Cargando />
       {/* ===== SVG SPRITES (brand mark reused) ===== */}
@@ -218,10 +218,10 @@ export default function Landing({
           {/* Las sucursales se cargan y editan desde el panel (/admin/editor) */}
           <SucursalesGrid items={sucursales} whatsappGeneral={textos.contacto?.whatsapp ?? ""} />
 
-          <div className="local-seo" aria-labelledby="titulo-pizzeria-rodeo-del-medio">
+          <div className="local-seo" aria-labelledby="titulo-pizzerias-mendoza">
             <span className="script">Hecho en el barrio</span>
-            <h2 id="titulo-pizzeria-rodeo-del-medio">
-              Tu pizzería en Rodeo del Medio, Maipú
+            <h2 id="titulo-pizzerias-mendoza">
+              Tu pizzería en Luján de Cuyo y Rodeo del Medio
             </h2>
             <p className="local-seo-intro">
               En Las Luigi preparamos pizzas a la piedra, lomos, hamburguesas y
@@ -230,10 +230,10 @@ export default function Landing({
             </p>
             <div className="faq-grid" id="preguntas-frecuentes">
               <details>
-                <summary>¿Hacen envíos en Rodeo del Medio?</summary>
+                <summary>¿Hacen envíos en Luján y Rodeo del Medio?</summary>
                 <p>
-                  Sí. Elegí la sucursal y escribinos por WhatsApp para confirmar
-                  la zona de entrega.
+                  Sí. Elegí la sucursal de Luján de Cuyo o Rodeo del Medio y
+                  escribinos por WhatsApp para confirmar la zona de entrega.
                 </p>
               </details>
               <details>
