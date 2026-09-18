@@ -39,7 +39,7 @@ export default function Landing({
     <CarritoProvider>
       <ActualizadorVistaPrevia />
       <h1 className="sr-only">
-        Las Luigi Pizzas en Mendoza: pizzas a la piedra, lomos, hamburguesas y empanadas
+        Pizzería en Rodeo del Medio, Maipú: Las Luigi Pizzas
       </h1>
       <Cargando />
       {/* ===== SVG SPRITES (brand mark reused) ===== */}
@@ -217,6 +217,41 @@ export default function Landing({
 
           {/* Las sucursales se cargan y editan desde el panel (/admin/editor) */}
           <SucursalesGrid items={sucursales} whatsappGeneral={textos.contacto?.whatsapp ?? ""} />
+
+          <div className="local-seo" aria-labelledby="titulo-pizzeria-rodeo-del-medio">
+            <span className="script">Hecho en el barrio</span>
+            <h2 id="titulo-pizzeria-rodeo-del-medio">
+              Tu pizzería en Rodeo del Medio, Maipú
+            </h2>
+            <p className="local-seo-intro">
+              En Las Luigi preparamos pizzas a la piedra, lomos, hamburguesas y
+              empanadas para retirar o pedir a domicilio. Elegí lo que querés
+              del menú, armá tu pedido y escribinos por WhatsApp.
+            </p>
+            <div className="faq-grid" id="preguntas-frecuentes">
+              <details>
+                <summary>¿Hacen envíos en Rodeo del Medio?</summary>
+                <p>
+                  Sí. Elegí la sucursal y escribinos por WhatsApp para confirmar
+                  la zona de entrega.
+                </p>
+              </details>
+              <details>
+                <summary>¿Qué puedo pedir?</summary>
+                <p>
+                  Pizzas a la piedra, lomos, hamburguesas y empanadas. El menú y
+                  los precios de esta página se mantienen actualizados.
+                </p>
+              </details>
+              <details>
+                <summary>¿Cómo hago mi pedido?</summary>
+                <p>
+                  Agregá productos, ingresá tu nombre y elegí una sucursal. Te
+                  preparamos el mensaje con el detalle y el total para WhatsApp.
+                </p>
+              </details>
+            </div>
+          </div>
         </div>
       </section>
 

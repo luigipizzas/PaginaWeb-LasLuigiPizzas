@@ -28,9 +28,9 @@ const mono = Space_Mono({
   variable: "--font-mono",
 });
 
-const TITULO = "Las Luigi Pizzas en Mendoza | Pizzas, lomos y hamburguesas";
+const TITULO = "Pizzería en Rodeo del Medio | Las Luigi Pizzas";
 const DESCRIPCION =
-  "Pedí pizzas a la piedra, lomos, hamburguesas y empanadas en Las Luigi Pizzas, Mendoza. Amasado a mano, retiro y envío a domicilio.";
+  "Pedí pizzas a la piedra, lomos, hamburguesas y empanadas en Rodeo del Medio, Maipú. Envíos a domicilio y retiro en Las Luigi Pizzas.";
 
 const SITIO = obtenerUrlSitio();
 
@@ -51,6 +51,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   keywords: [
     "pizzería en Mendoza",
+    "pizzería en Rodeo del Medio",
+    "pizza Rodeo del Medio",
+    "delivery Rodeo del Medio",
+    "pizzería Maipú Mendoza",
     "pizza a la piedra Mendoza",
     "lomos Mendoza",
     "hamburguesas Mendoza",
