@@ -102,7 +102,7 @@ export default function Landing({
               {/* En celular va una foto vertical propia: la apaisada, recortada
                   a pantalla de teléfono, perdía el texto o la pizza. */}
               <source media="(max-width: 700px)" srcSet="/heroMOBILE.jpg" />
-              <img className="hero-img" src="/IMG_3119.JPEG" alt="Las Luigi Pizzas — Eyyy! ¿Vos querés?" />
+              <img className="hero-img" src="/IMG_3119.webp" alt="Las Luigi Pizzas — Eyyy! ¿Vos querés?" />
             </picture>
             <div className="hero-actions">
               <a className="btn green" href="#menu">Ver el menú
@@ -152,7 +152,7 @@ export default function Landing({
             <div className="origen-photo">
               <div className="stamp">Hecho<br />en el<br />barrio</div>
               <div className="frame">
-                <img alt="El local de Las Luigi Pizzas" src="/local.PNG" loading="lazy" />
+                <img alt="El local de Las Luigi Pizzas" src="/local.webp" loading="lazy" />
               </div>
             </div>
             <div className="origen-copy">
